@@ -1,0 +1,74 @@
+{% extends "../base.html" %}
+{% load myfilter %}
+{% block mainbody %}
+    <!-- 面包屑 -->
+    <div class="page-header">
+        <h1>{{ info.titleCh }}<small>{{ info.titleJp }}</small></h1>
+    </div>
+    <div class="jumbotron">
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div class="thumbnail"><img src="{{ info.cover|first }}" alt="{{ info.titleCh }}"/></div>
+                <div class="caption">{{ info.titleCh }}</div>
+                <div class="small">{{ info.intro|safe }}</div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                    <!-- Indicators -->
+                    <ol class="carousel-indicators">
+                        {% for _ in carousel|length|get_range %}
+                        <li data-target="#carousel-example-generic" data-slide-to="{{forloop.counter0}}"
+                            {% ifequal forloop.counter0 0 %}class="active"{% endifequal %}></li>
+                        {% endfor %}
+                    </ol>
+
+                    <!-- Wrapper for slides -->
+                    <div class="carousel-inner" role="listbox">
+                        {% for img in carousel %}
+                        <div class="item {% ifequal forloop.counter 1 %}active{% endifequal %}">
+                            <img src="{{img}}" alt="...">
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Controls -->
+                    <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+                <span>数字版价格</span>
+                <span>汇率更新于 {{ rate_update }}</span>
+                <ul class="list-group">
+                    {% for p in info.price %}
+                        <li class="list-group-item">
+                            <a href="{{ p.url }}" target="_blank" title="{{ p.subject }}">
+                                {% if p.latestPriceCNY %}人民币：{{ p.latestPriceCNY|floatformat:"-2" }} 元 {% endif %}{{ p.currency }} {{ p.latestPrice }}
+                            </a>
+                            <span class="label label-primary">{{ p.platform }}</span>
+                            <span class="label label-info">{{ p.edition }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <span>媒体评分</span>
+                <div class="list-group">
+                    {% for c in score %}
+                    <a href="{% url "magazine.review" pk=c.id %}" class="list-group-item" target="_blank">
+                        {% if c.score > 0 %}
+                        <span class="badge">{{ c.score }} {{ c.scoreWord }}</span>
+                        {% endif %}
+                        <h4 class="list-group-item-heading">{{ c.subject }}</h4>
+                        <p class="list-group-item-text">{% if c.comment_trans|length > 0 %}{{ c.comment_trans }}{% else %}{{ c.comment }}{% endif %}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

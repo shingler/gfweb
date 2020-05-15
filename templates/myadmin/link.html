@@ -1,0 +1,121 @@
+{% extends "./bootstrap/base.html" %}
+{% load static %}
+{% block mainbody %}
+    <form action="{% url "game.link" %}" method="post">
+    <input type="hidden" name="gameId" value="{% ifnotequal shelf None %}{{ shelf.gameId }}{% endifnotequal %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <span class="input-group-addon">游戏名</span>
+                    <input type="text" name="title" class="form-control" placeholder="游戏名"
+                           value="{% ifnotequal shelf None %}{{ shelf.titleCh }}{% endifnotequal %}"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <!-- Large button group -->
+                <div class="btn-group">
+                    <span>选择游戏系列</span>
+                    <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        系列游戏
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>勇者斗恶龙</li>
+                        <li>生化危机</li>
+                        <li>马里奥</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {% ifnotequal shelf None %}
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <span class="input-group-addon">已关联游戏</span>
+                    <ul class="list-group">
+                        {% ifnotequal shelf.sub_list None %}
+                        {% for s in shelf.sub_list %}
+                        <li class="list-group-item">
+                            <span><input type="checkbox" name="linked" value="{{ s.officialGameId }}" checked/></span>
+                            <span>{{ s.subject }}</span>
+                            <span class="label label-primary">{{ s.platform }}</span>
+                            <span class="label label-info">{{ s.saleArea }}</span>
+                        </li>
+                        {% endfor %}
+                        {% endifnotequal %}
+                    </ul>
+                </div>
+
+
+            </div>
+        </div>
+        {% endifnotequal %}
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="input-group">
+                    <span class="input-group-addon">游戏关联</span>
+                    <div class="col-lg-4">
+                        <span>PS4</span>
+                        {% for label,area in ps4_list.items %}
+                            <span>{{ label }}</span>
+                            <ul class="list-group gamelist">
+                                {% for ps4 in area.values %}
+                                    <li class="list-group-item">
+                                        <input type="checkbox" name="ps4-games" value="{{ ps4.officialGameId }}">&nbsp;
+                                        <a href="{{ ps4.url }}" target="_blank"> {{ ps4.subject }} </a></li>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                    </div>
+                    <div class="col-lg-4">
+                        <span>switch</span>
+                        {% for label,area in switch_list.items %}
+                            <span>{{ label }}</span>
+                            <ul class="list-group gamelist">
+                                {% for ns in area.values %}
+                                    <li class="list-group-item">
+                                        <input type="checkbox" name="switch-games" value="{{ ns.officialGameId }}">&nbsp;
+                                        <a href="{{ ns.url }}" target="_blank"> {{ ns.subject }} </a></li>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <span class="input-group-addon">设置搜索关键字</span>
+                    <textarea class="form-control" cols="10" rows="5" name="keyword" placeholder="关键字会自动抓取游戏名，以空格分隔">{% ifnotequal shelf None %}{{ shelf.keyword }}{% endifnotequal %}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <span class="input-group-addon">是否显示</span>
+                    <input type="radio" name="show" value="1" {% if shelf and shelf.show == 1 %}checked{% elif shelf == None %}checked{% endif %}/>是 &nbsp;
+                    <input type="radio" name="show" value="0" {% if shelf and shelf.show == 0 %}checked{% endif %}/>否 &nbsp;
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <button type="submit" class="btn btn-primary btn-lg">保 存</button>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

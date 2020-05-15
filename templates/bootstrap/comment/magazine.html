@@ -1,0 +1,35 @@
+{% extends "../base.html" %}
+{% block mainbody %}
+    <div class="page-header">
+        <h1>媒体评分</h1>
+    </div>
+    <ul class="nav nav-tabs">
+        <li role="presentation" {% if request.m is None %}class="active"{% endif %}>
+            <a href="#">全部</a></li>
+        {% for m in magzines %}
+            <li role="presentation" {% ifequal request.m m %}class="active"{% endifequal %}>
+                <a href="{% url "magazine.list" %}?m={{ m }}">{{ m }}</a></li>
+        {% endfor %}
+
+    </ul>
+
+    <div class="pull-left" style="display: inline">
+    {% for comment in list %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <div class="caption"><a href="{% url "magazine.review" comment.id %}" target="_blank">{{ comment.subject }}</a></div>
+                    <span class="badge">{{ comment.score }} {{ comment.scoreWord }}</span>
+                    <span class="label label-primary">{{ comment.magazine }}</span>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="small">{{ comment.comment }}</div>
+                <div class="small"><a href="{{ comment.url }}" target="_blank">{{ comment.url }}</a></div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+
+{% include "pager.html" %}
+{% endblock %}

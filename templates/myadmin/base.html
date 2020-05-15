@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>游方自定义管理界面</title>
+    <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.min.css" %}">
+    <link href="{% static "bootstrap/css/bootstrap-theme.min.css" %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "css/myadmin.css" %}">
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script type="text/javascript" src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+
+<ol class="breadcrumb">
+    {% for label,url in breadcrumb.items %}
+    {% if url == "" %}<li class="active">{{label}}</li>
+    {% else %}<li><a href="{% url url %}">{{ label }}</a></li>
+    {% endif %}
+    {% endfor %}
+</ol>
+{% block mainbody %}
+    <p>欢迎来到游方，这里是内容！</p>
+{% endblock %}
+
+</body>
+</html>

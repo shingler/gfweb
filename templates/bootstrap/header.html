@@ -1,0 +1,63 @@
+<div class="page-header">
+    <h1>欢迎来到游方</h1>
+</div>
+
+<nav class="navbar navbar-inverse">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Game Finder</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li {% if active is None %}class="active"{% endif %}><a href="/games/list/all">首页</a></li>
+                <li class="dropdown {% ifequal active "games" %}active{% endifequal %}">
+                    <a href="/games/list/all" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">游戏列表 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/games/list/ps4">PlayStation 4</a></li>
+                        <li><a href="/games/list/switch">Ninten Switch</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li class="dropdown-header">Nav header</li>
+                        <li><a href="#">Separated link</a></li>
+                    </ul>
+                </li>
+                <li><a href="#contact">特价频道</a></li>
+                <li {% ifequal active "comment" %}class="active"{% endifequal %}>
+                    <a href="/comment/magazine">媒体评分</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Dropdown <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li class="dropdown-header">Nav header</li>
+                        <li><a href="#">Separated link</a></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="col-lg-3 header-search">
+                <form method="get" action="{% url "list" "all" %}">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="kw"
+                               placeholder="请输入中文名或英文名" value="{% if kw %}{{ kw }}{% endif %}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit">
+                                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                            </button>
+                        </span>
+                    </div><!-- /input-group -->
+                </form>
+            </div>
+        </div><!--/.nav-collapse -->
+
+    </div>
+</nav>
