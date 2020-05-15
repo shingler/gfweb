@@ -1,0 +1,51 @@
+{% extends "weui/base.html" %}
+{% load static %}
+{% load myfilter %}
+{% block mainbody %}
+{% include "breadcrumb.html" %}
+
+<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title">游戏评测</h1>
+        <p class="page__desc">{{ review.magazine }}</p>
+    </div>
+    <div class="page__bd">
+        <article class="weui-article">
+            {% ifnotequal game None %}<h1>{{ game.titleCh }}</h1>{% endifnotequal %}
+            <section>
+                <h2 class="title">{{ review.subject }}</h2>
+                <section>
+                    {% ifnotequal game None %}
+                    <p>
+                        <img src="{{ game.cover }}" width="200px" alt="">
+                    </p>
+                    {% endifnotequal %}
+                    <h3>媒体评分：<span class="weui-badge" style="margin-left: 5px;">{{ review.score }}</span>
+                    {% ifnotequal review.scoreWord "" %}&nbsp;{{ review.scoreWord }}{% endifnotequal %}</h3>
+                    <p>
+                        {{review.comment_trans}}
+                    </p>
+                    <div class="weui-cells__title">以上翻译来自：百度翻译API</div>
+                </section>
+                <section>
+                    <h3 class="show_origin">查看原文&nbsp;<span class="caret"></span></h3>
+                    <p id="origin1" class="show">
+                        {{ review.comment|truncatechars:300 }}
+                    </p>
+                    <p id="origin2" class="hidden">
+                        {{ review.comment|linebreaksbr }}
+                    </p>
+                </section>
+            </section>
+        </article>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(".show_origin").click(function(){
+    {#$(this).hide()#}
+    $("#origin1").removeClass("show").addClass("hidden")
+    $("#origin2").removeClass("hidden").addClass("show")
+})
+</script>
+{% endblock %}

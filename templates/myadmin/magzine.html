@@ -1,0 +1,94 @@
+{% extends "./bootstrap/base.html" %}
+{% load static %}
+{% block mainbody %}
+
+    <form action="{% url "game.magzine" game_id=shelf.gameId|default_if_none:"0" %}" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <span class="input-group-addon">游戏名</span>
+                    <ol class="breadcrumb">
+                        <li>{{ shelf.titleCh }}</li>
+                        <li>{{ shelf.titleJp }}</li>
+                        <li>{{ shelf.titleEn }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        {% ifnotequal shelf None %}
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <span class="input-group-addon">已关联游戏</span>
+                    <ul class="list-group">
+                        {% ifnotequal shelf.games None %}
+                        {% for s in shelf.games %}
+                        <li class="list-group-item">
+                            <span>{{ s.subject }}</span>
+                            <span class="label label-primary">{{ s.platform }}</span>
+                            <span class="label label-info">{{ s.saleArea }}</span>
+                        </li>
+                        {% endfor %}
+                        {% endifnotequal %}
+                    </ul>
+                </div>
+
+
+            </div>
+        </div>
+        {% endifnotequal %}
+
+        {% ifnotequal shelf.mags None %}
+        <div class="row">
+            <div class="col-lg-6">
+                <span class="input-group-addon">已关联评测</span>
+                <span class="list-group">
+                    {% for c in shelf.mags %}
+                    <a href="{{ c.url }}" class="list-group-item">
+                        {% if c.score > 0 %}
+                        <span class="badge">{{ c.score }} {{ c.scoreWord }}</span>
+                        {% endif %}
+                        <h4 class="list-group-item-heading">
+                            <input type="checkbox" name="score_id" value="{{ c.id }}" checked>&nbsp;&nbsp;
+                            {{ c.subject }}</h4>
+                        <p class="list-group-item-text">{% if c.comment_trans|length > 0 %}{{ c.comment_trans }}{% else %}{{ c.comment }}{% endif %}</p>
+                    </a>
+                    {% endfor %}
+                </span>
+            </div>
+        </div>
+        {% endifnotequal %}
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="input-group">
+                    <span class="input-group-addon">媒体评测</span>
+                    {% for label,comment in magzine.items %}
+                    <div class="col-lg-4">
+                        <span>{{ label }}</span>
+                        <ul class="list-group gamelist">
+                            {% for article in comment.values %}
+                                <li class="list-group-item">
+                                    <input type="checkbox" name="articles" value="{{ article.id }}">&nbsp;
+                                    <a href="{{ article.url }}" target="_blank">{{ article.subject }}</a>&nbsp;&nbsp;
+                                    <span class="badge">{{ article.score }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <button type="submit" class="btn btn-primary btn-lg">保 存</button>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

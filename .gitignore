@@ -1,0 +1,13 @@
+__pycache__
+GameModel/__pycache__
+GameModel/migrations/__pycache__
+gfweb/__pycache__
+gfweb/settings/__pycache__
+gfweb/templatetags/__pycache__
+link/__pycache__
+link/migrations/__pycache__
+mysql_back
+restful/__pycache__
+.idea
+master.pid
+gfweb.log

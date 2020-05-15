@@ -1,0 +1,105 @@
+{% extends "weui/base.html" %}
+{% load static %}
+{% load myfilter %}
+{% block mainbody %}
+<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title">游戏搜索</h1>
+        <p class="page__desc">请在文本框中输入游戏的名字</p>
+    </div>
+    <div class="page__bd">
+        <!--<a href="javascript:" class="weui-btn weui-btn_primary">点击展现searchBar</a>-->
+        <div class="weui-search-bar" id="searchBar">
+            <form class="weui-search-bar__form">
+                <div class="weui-search-bar__box">
+                    <i class="weui-icon-search"></i>
+                    <input type="search" class="weui-search-bar__input" id="searchInput" placeholder="搜索" required/>
+                    <a href="javascript:" class="weui-icon-clear" id="searchClear"></a>
+                </div>
+                <label class="weui-search-bar__label" id="searchText">
+                    <i class="weui-icon-search"></i>
+                    <span>搜索</span>
+                </label>
+            </form>
+            <a href="javascript:" class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
+        </div>
+        <div class="weui-cells searchbar-result" id="searchResult">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function(){
+        var $searchBar = $('#searchBar'),
+            $searchResult = $('#searchResult'),
+            $searchText = $('#searchText'),
+            $searchInput = $('#searchInput'),
+            $searchClear = $('#searchClear'),
+            $searchCancel = $('#searchCancel');
+
+        function hideSearchResult(){
+            $searchResult.hide();
+            $searchInput.val('');
+        }
+        function cancelSearch(){
+            hideSearchResult();
+            $searchBar.removeClass('weui-search-bar_focusing');
+            $searchText.show();
+        }
+
+        $searchText.on('click', function(){
+            $searchBar.addClass('weui-search-bar_focusing');
+            $searchInput.focus();
+        });
+        $searchInput
+            .on('blur', function () {
+                if(!this.value.length) cancelSearch();
+            })
+            .on('input', function(){
+                if(this.value.length) {
+                    sr = $("#searchResult")
+                    // 先清空结果栏
+                    sr.empty()
+                    $.ajax({
+                        url: '/api/games/?keyword='+$searchInput.val(),
+                        dataType: 'JSON',
+                        method: 'GET',
+                        success: function (resp) {
+                            {#console.log(resp)#}
+                            if (resp.count > 0) {
+
+                                resp.results.forEach(function (game, index) {
+                                    {#console.log(index, game)#}
+                                    temp = '<div class="weui-cell weui-cell_active weui-cell_access">\n' +
+                                        '                <div class="weui-cell__bd weui-cell_primary">\n' +
+                                        '                    <p rel="$1">$2</p>\n' +
+                                        '                </div>\n' +
+                                        '            </div>'
+                                    item = temp.replace('\$1', game.gameId).replace('\$2', game.titleCh)
+                                    console.log(item)
+                                    sr.append(item)
+                                })
+                            }
+                        }
+                    })
+                    $searchResult.show();
+                } else {
+                    $searchResult.hide();
+                }
+            })
+        ;
+        $searchResult.on('click', 'p', function () {
+            var that = this
+            gameId = $(that).attr("rel")
+            location.href = "/games/info/"+gameId
+        })
+        $searchClear.on('click', function(){
+            hideSearchResult();
+            $searchInput.focus();
+        });
+        $searchCancel.on('click', function(){
+            cancelSearch();
+            $searchInput.blur();
+        });
+    });
+</script>
+{% endblock %}

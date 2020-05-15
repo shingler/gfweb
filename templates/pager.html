@@ -1,0 +1,37 @@
+<!--分页-->
+<!-- 必须传入当前页的page对象，current_page -->
+<nav aria-label="Page navigation" style="clear: both">
+    <ul class="pagination">
+        {% if current_page.has_previous %}
+        <li>
+            <a href="?page=1" aria-label="Previous">
+                <span aria-hidden="true">首页</span>
+            </a>
+        </li>
+        <li>
+            <a href="?page={{ current_page.previous_page_number}}" aria-label="Previous">
+                <span aria-hidden="true">前一页</span>
+            </a>
+        </li>
+        {% endif %}
+
+        {% for p in page_range %}
+            <li {% ifequal current_page.number p %}class="active"{% endifequal %}>
+                <a href="?page={{ p }}">{{ p }}</a>
+            </li>
+        {% endfor %}
+
+        {% if current_page.has_next %}
+        <li>
+            <a href="?page={{ current_page.next_page_number }}" aria-label="Next">
+                <span aria-hidden="true">后一页</span>
+            </a>
+        </li>
+        <li>
+            <a href="?page={{ current_page.paginator.num_pages }}" aria-label="Next">
+                <span aria-hidden="true">{{ current_page.paginator.num_pages }}</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>

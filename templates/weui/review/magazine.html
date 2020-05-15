@@ -1,0 +1,37 @@
+{% extends "weui/base.html" %}
+{% load static %}
+{% block mainbody %}
+<link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.min.css" %}">
+<link href="{% static "bootstrap/css/bootstrap-theme.min.css" %}" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script type="text/javascript" src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+
+{% include "breadcrumb.html" %}
+<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title">游戏评测</h1>
+        <p class="page__desc">专业媒体</p>
+    </div>
+    <div class="page__bd">
+        <div class="weui-cells__title">带图标、说明、跳转的列表项</div>
+        <div class="weui-cells">
+            {% for review in list %}
+            <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url "magazine.review" review.id %}?theme=weui" target="_blank">
+                <div class="weui-cell__hd" style="position: relative; margin-right: 10px;">
+                    <img src="{{ review.shelf_cover }}" alt="" style="width: 50px; display: block;">
+                    <span class="weui-badge" style="position: absolute; top: -0.4em; right: -0.4em;">{{ review.score }}</span>
+                </div>
+                <div class="weui-cell__bd">
+                    <span style="vertical-align: middle;"><p>{{review.subject}}</p>
+                        <p style="font-size: 13px; color: #888;">{{review.magazine}}</p></span>
+
+                </div>
+                <div class="weui-cell__ft">详细信息</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% include "pager.html" %}
+{% endblock %}

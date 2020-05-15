@@ -1,0 +1,15 @@
+.header-search{
+    float: right;
+    margin-top: 7px;
+    display: inherit;
+    margin-right: 5px;
+}
+.game-item {
+    min-height: 550px;
+}
+.page {
+    width: 95%;
+    background: #f7f7f7;
+    margin: 0 auto;
+    padding: 5px 5px 5px 5px;
+}
