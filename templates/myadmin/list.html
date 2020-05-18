@@ -1,7 +1,8 @@
-{% extends "./bootstrap/base.html" %}
+{% extends "./base.html" %}
 {% block mainbody %}
     <p>游戏列表</p>
-    <p><a class="btn-lg btn-primary" href="{% url "game.link" %}">添加游戏合集</a></p>
+    <p><a class="btn-lg btn-primary" href="{% url "game.link" %}">添加游戏合集</a>
+    </p>
     <!-- 分页 -->
     <nav aria-label="Page navigation">
         <ul class="pagination">
@@ -29,7 +30,7 @@
         {% for game in pagitor.object_list %}
             <li class="list-group-item">
                 <span><a href="{% url 'detail' game_id=game.gameId %}">{{ game.titleCh }}</a></span>
-                <span><img src="{{ game.cover|first }}" width="120"/></span>
+                <span><img src="{{ game.cover|first|show_pic:"cover" }}" width="120"/></span>
                 <span>{% ifequal game.hasChinese True %}有中文{% else %}无中文{% endifequal %}</span>
                 <span>{{ game.platform }}</span>
                 <span><a href="{% url "game.link" %}?game_id={{ game.gameId }}">编辑</a></span>

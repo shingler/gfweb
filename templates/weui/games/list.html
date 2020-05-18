@@ -1,5 +1,6 @@
 {% extends "weui/base.html" %}
 {% load static %}
+{% load myfilter %}
 {% block mainbody %}
 
 <div class="page">
@@ -19,7 +20,7 @@
                     <h3>{{ item.platform }}
                         {% ifequal item.hasChinese 1 %}有中文{% else %}无中文{% endifequal %} </h3>
                     <p>
-                        <img src="{{ item.cover|first }}" alt="" width="200px">
+                        <img src="{{ item.cover|first|show_pic:"cover" }}" alt="" width="200px">
                     </p>
                     <p>
                         {{ item.intro|striptags|truncatechars:100 }}

@@ -10,6 +10,8 @@ from GameModel.models import Shelf, Subjects, MagzineScores
 from gfweb import translate
 import numpy
 from django.contrib import admin
+from . import util
+from django.template.defaultfilters import register
 
 # 面包屑导航
 from link.models import Link
@@ -17,6 +19,7 @@ from link.models import Link
 breadcrumb = {
     "游戏列表": "myadmin.game.list",
 }
+
 
 @admin.register(Link)
 class LinkAdmin(admin.ModelAdmin):
@@ -93,14 +96,18 @@ class LinkAdmin(admin.ModelAdmin):
                     # 合并各个语言的介绍 格式：JSON
                     # shelf.intro += s.intro + "\r\n\r\n"
                     intro[s.saleArea.lower()] = s.intro
+
                     # 合并封图，截图和视频
                     covers.append(s.cover)
+
                     if len(s.thumb) > 0:
                         # print(thumb, json.loads(s.thumb, encoding="UTF-8"))
                         thumb += json.loads(s.thumb, encoding="UTF-8")
                         # print(thumb)
+
                     if len(s.video) > 0:
                         video += json.loads(s.video, encoding="UTF-8")
+
                     # 合并语言版本，更新游玩人数
                     shelf.language += s.edition + ","
                     shelf.players = s.players
@@ -119,6 +126,7 @@ class LinkAdmin(admin.ModelAdmin):
             shelf.thumb = json.dumps(thumb)
             shelf.video = json.dumps(video)
             shelf.platform = ",".join(set(platform))
+
             # 无中文介绍，翻译
             if "hk" not in intro:
                 intro["trans"] = translate.translate(list(intro.values())[0])
@@ -126,11 +134,43 @@ class LinkAdmin(admin.ModelAdmin):
             shelf.intro = json.dumps(intro, ensure_ascii=False)
             if shelf.language.find("中文"):
                 shelf.hasChinese = True
-            # 保存了之后，将subject的onShelf改成1
+
             shelf.save()
+
+            # 保存了之后，将subject的onShelf改成1
             for s in games:
                 s.onShelf = True
                 s.save()
+
+            # 保存了之后，将图片上传到oss，并更新
+            # 上传到oss并获得路径
+            if shelf.gameId:
+                om = util.OssManager()
+
+                cover_bucket = om.get_bucket('cover')
+                oss_covers = []
+                for c in covers:
+                    try:
+                        oss_covers.append(om.upload(cover_bucket, c, shelf.gameId))
+                    except util.OssException as ex:
+                        print(ex)
+                    except Exception as ex:
+                        print(ex)
+
+                thumb_bucket = om.get_bucket('thumb')
+                oss_thumb = []
+                for t in thumb:
+                    try:
+                        oss_thumb.append(om.upload(thumb_bucket, t, shelf.gameId))
+                    except util.OssException as ex:
+                        print(ex)
+                    except Exception as ex:
+                        print(ex)
+
+                shelf.cover = json.dumps(oss_covers)
+                shelf.thumb = json.dumps(oss_thumb)
+                # print(shelf.cover)
+                shelf.save()
 
             return HttpResponseRedirect("/admin/refer/list")
 
@@ -225,3 +265,11 @@ class LinkAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         return self.list(request)
+
+@register.filter(name="show_pic")
+def show_pic(url, type='cover'):
+    if url.startswith('http'):
+        return url
+    else:
+        om = util.OssManager()
+        return om.get_url(url, om.get_bucket(type))
