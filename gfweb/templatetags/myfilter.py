@@ -21,9 +21,16 @@ def get_item(d, key):
 
 # 自动加oss域名并兼容外站链接
 @register.filter(name="show_pic")
-def show_pic(url, type='cover'):
-    if url.startswith('http'):
+def show_pic(url, param=''):
+    if url.startswith('http') or len(param) == 0:
+        # 外站图片直接展示
         return url
     else:
+        # 阿里云oss图片，可以进一步处理
+        params = param.split(',')
+        print(params)
         om = util.OssManager()
-        return om.get_url(url, om.get_bucket(type))
+        if len(params) > 1:
+            return om.get_url(url, params[0], params[1])
+        else:
+            return om.get_url(url, params[0])

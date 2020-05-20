@@ -14,11 +14,12 @@
     <div class="jumbotron">
         <div class="row">
             <div class="col-sm-6 col-md-4">
-                <div class="thumbnail"><img src="{{ info.cover|first }}" alt="{{ info.titleCh }}"/></div>
+                <div class="thumbnail"><img src="{{ info.cover|first|show_pic:"cover,detail_pic_w500" }}" alt="{{ info.titleCh }}"/></div>
                 <div class="caption">{{ info.titleCh }}</div>
                 <div class="small">{{ info.intro|safe }}</div>
             </div>
             <div class="col-sm-6 col-md-4">
+                {% ifnotequal carousel|length 0 %}
                 <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
                     <!-- Indicators -->
                     <ol class="carousel-indicators">
@@ -32,7 +33,7 @@
                     <div class="carousel-inner" role="listbox">
                         {% for img in carousel %}
                             <div class="item {% ifequal forloop.counter 1 %}active{% endifequal %}">
-                                <img src="{{ img }}" alt="...">
+                                <img src="{{ img|show_pic:"thumb,detail_pic_w500" }}" alt="...">
                             </div>
                         {% endfor %}
                     </div>
@@ -47,6 +48,7 @@
                         <span class="sr-only">Next</span>
                     </a>
                 </div>
+                {% endifnotequal %}
 
                 <div class="weui-cells__title">汇率更新于 {{ rate_update }}</div>
                 <div class="weui-cells">
@@ -69,6 +71,7 @@
                 </div>
             </div>
             <div class="col-sm-6 col-md-4">
+                {% ifnotequal score|length 0 %}
                 <span>媒体评分</span>
                 <div class="list-group">
                     {% for c in score %}
@@ -83,6 +86,7 @@
                         </a>
                     {% endfor %}
                 </div>
+                {% endifnotequal %}
             </div>
         </div>
     </div>

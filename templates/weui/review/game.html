@@ -17,7 +17,7 @@
                 <section>
                     {% ifnotequal game None %}
                     <p>
-                        <img src="{{ game.cover }}" width="200px" alt="">
+                        <img src="{{ game.cover|show_pic:"cover,detail_pic_w500" }}" width="200px" alt="">
                     </p>
                     {% endifnotequal %}
                     <h3>媒体评分：<span class="weui-badge" style="margin-left: 5px;">{{ review.score }}</span>

@@ -11,7 +11,6 @@ from gfweb import translate
 import numpy
 from django.contrib import admin
 from . import util
-from django.template.defaultfilters import register
 
 # 面包屑导航
 from link.models import Link
@@ -147,7 +146,7 @@ class LinkAdmin(admin.ModelAdmin):
             if shelf.gameId:
                 om = util.OssManager()
 
-                cover_bucket = om.get_bucket('cover')
+                cover_bucket = 'cover'
                 oss_covers = []
                 for c in covers:
                     try:
@@ -157,7 +156,7 @@ class LinkAdmin(admin.ModelAdmin):
                     except Exception as ex:
                         print(ex)
 
-                thumb_bucket = om.get_bucket('thumb')
+                thumb_bucket = 'thumb'
                 oss_thumb = []
                 for t in thumb:
                     try:
@@ -183,7 +182,8 @@ class LinkAdmin(admin.ModelAdmin):
                     print(shelf.officialGameIds, sub_list)
                     shelf.__setattr__("sub_list", sub_list)
 
-            ps4_hk_list = Subjects.objects.filter(platform="ps4", saleArea="hk", onShelf=False).order_by("officialGameId")
+            ps4_hk_list = Subjects.objects.filter(platform="ps4", saleArea="hk", onShelf=False).order_by(
+                "officialGameId")
             switch_jp_list = Subjects.objects.filter(platform="switch", saleArea="jp", onShelf=False).order_by(
                 "officialGameId")
             switch_us_list = Subjects.objects.filter(platform="switch", saleArea="us", onShelf=False).order_by(
@@ -225,15 +225,24 @@ class LinkAdmin(admin.ModelAdmin):
             score_ids = request.POST.getlist("score_id")
             # 新旧文章合并
             mag_ids = numpy.hstack((score_ids, article_ids))
-            # print(mag_ids)
+            # print(score_ids, mag_ids)
             scores = []
             for mid in mag_ids:
+                # 将不再勾选的文章撤掉关联
+                mag_remove = MagzineScores.objects.filter(gameId=game_id)
+                for mr in mag_remove:
+                    if str(mr.id) not in mag_ids:
+                        # print(mr.id, mag_ids)
+                        mr.gameId = 0
+                        mr.save()
+
                 # 关键游戏ID，翻译评价原文
                 mag = MagzineScores.objects.get(id=mid)
                 mag.gameId = game_id
                 if mag.magazine != "IGN" and len(mag.comment) > 0 and len(mag.comment_trans) == 0:
                     mag.comment_trans = translate.translate(mag.comment)
                 mag.save()
+
                 # meta网站是百分制
                 the_score = mag.score if mag.score <= 10 else mag.score / 10
                 scores.append(the_score)
@@ -265,11 +274,3 @@ class LinkAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         return self.list(request)
-
-@register.filter(name="show_pic")
-def show_pic(url, type='cover'):
-    if url.startswith('http'):
-        return url
-    else:
-        om = util.OssManager()
-        return om.get_url(url, om.get_bucket(type))

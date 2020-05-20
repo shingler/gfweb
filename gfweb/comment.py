@@ -29,8 +29,6 @@ def magazine(request):
     score_high = get_data.setdefault("high", 10)
     # 页面样式
     theme = "bootstrap"
-    if "theme" in request.GET and request.GET["theme"] in themes:
-        theme = request.GET["theme"]
 
     # 获取数据
     size = 20

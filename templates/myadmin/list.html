@@ -1,4 +1,5 @@
 {% extends "./base.html" %}
+{% load myfilter %}
 {% block mainbody %}
     <p>游戏列表</p>
     <p><a class="btn-lg btn-primary" href="{% url "game.link" %}">添加游戏合集</a>
@@ -30,7 +31,7 @@
         {% for game in pagitor.object_list %}
             <li class="list-group-item">
                 <span><a href="{% url 'detail' game_id=game.gameId %}">{{ game.titleCh }}</a></span>
-                <span><img src="{{ game.cover|first|show_pic:"cover" }}" width="120"/></span>
+                <span><img src="{{ game.cover|first|show_pic:"cover,list_icon_w200" }}" width="120"/></span>
                 <span>{% ifequal game.hasChinese True %}有中文{% else %}无中文{% endifequal %}</span>
                 <span>{{ game.platform }}</span>
                 <span><a href="{% url "game.link" %}?game_id={{ game.gameId }}">编辑</a></span>

@@ -101,10 +101,10 @@ def detail(request, game_id=0):
             pass
     # 获取评测
     score = MagzineScores.objects.filter(gameId=game_id)
-    if score is None:
-        score = MagzineScores.objects.all()[0:5]
+
     # 图片轮播（优先取截图，无截图用封图）
-    carousel = info.thumb if len(info.thumb) > 0 else info.cover
+    # carousel = info.thumb if len(info.thumb) > 0 else info.cover
+    carousel = info.thumb
     # 图标列表
     icons = {
         "ps4": "image/ps4.jpg",

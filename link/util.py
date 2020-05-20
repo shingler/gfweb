@@ -16,26 +16,35 @@ class OssManager:
         self.end_point = OSS_END_POINT
 
     # 根据用途获取bucket
-    def get_bucket(self, type='cover'):
-        if type == 'cover':
-            return OSS_BUCKETNAME[0]
+    def get_bucket(self, bucket_name='cover'):
+        if bucket_name in OSS_BUCKETNAME:
+            return OSS_BUCKETNAME[bucket_name]["bucket"]
         else:
-            return OSS_BUCKETNAME[1]
+            return ""
 
-    def get_domain(self, bucket):
-        return OSS_DOMAIN[bucket]
+    def get_domain(self, bucket_name):
+        print(bucket_name)
+        if bucket_name in OSS_BUCKETNAME:
+            return OSS_BUCKETNAME[bucket_name]["domain"]
+        else:
+            return ""
+
+    def get_style(self, bucket_name):
+        if bucket_name in OSS_BUCKETNAME:
+            return OSS_BUCKETNAME[bucket_name]["style"]
+        else:
+            return ""
 
     def upload(self, bucket_name, src, shelf_id):
-        if bucket_name not in OSS_BUCKETNAME:
+        bucket = self.get_bucket(bucket_name)
+        if bucket == "":
             raise OssException("不存在的bucket")
 
         auth = oss2.Auth(self.key_id, self.key_secret)
-        bucket = oss2.Bucket(auth, self.end_point, bucket_name)
+        bucket = oss2.Bucket(auth, self.end_point, bucket)
 
         # 格式：/shelf_id/md5(不带扩展名的src路径)[0:8].扩展名
         fname, extname = path.splitext(src)
-        if len(extname) > 0:
-            extname = "." + extname
 
         m = md5()
         m.update(fname.encode(encoding='utf-8'))
@@ -48,7 +57,16 @@ class OssManager:
         print("%s/%s" % (self.get_domain(bucket_name), dest))
         return dest
 
-    def get_url(self, key, bucket_name):
+    # 获取缩略图地址
+    def get_url(self, key, bucket_name, style_name=""):
+        origin_url = self.get_origin_url(key, bucket_name)
+        if style_name in self.get_style(bucket_name):
+            return "%s?x-oss-process=style/%s" % (origin_url, style_name)
+        else:
+            return origin_url
+
+    # 获取原图地址
+    def get_origin_url(self, key, bucket_name):
         return "//%s/%s" % (self.get_domain(bucket_name), key)
 
 
