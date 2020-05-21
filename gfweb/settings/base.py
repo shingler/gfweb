@@ -30,7 +30,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'GameModel',
     'link',
-    # 'gfweb.templatetags'
+    'restful',
+    'oss2',
 ]
 
 MIDDLEWARE = [
