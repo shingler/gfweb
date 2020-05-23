@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-import asyncio
 import hashlib
 import random
 import time

@@ -3,7 +3,6 @@
 import json
 import time
 
-from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from GameModel.models import Currency, MagzineScores, Shelf, Subjects
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger

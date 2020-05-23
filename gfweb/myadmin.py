@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 import json
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
 from GameModel.models import Shelf, Subjects, MagzineScores

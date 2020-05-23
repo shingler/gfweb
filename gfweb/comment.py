@@ -4,7 +4,6 @@
 import json
 import math
 
-import pysnooper
 from django.http.response import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
@@ -14,8 +13,8 @@ from .util import *
 active = "comment"
 theme = "weui"
 
+
 # 媒体评分
-# @pysnooper.snoop(watch_explode="paginator")
 def magazine(request):
     # request数据
     get_data = request.GET.copy()
