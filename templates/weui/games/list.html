@@ -3,48 +3,86 @@
 {% load myfilter %}
 {% block mainbody %}
 
-<div class="page">
-    <div class="page__hd">
-        <h1 class="page__title">游戏列表</h1>
-        <p class="page__desc"></p>
-    </div>
-    <div class="page__bd page__bd_spacing">
-        {% for sublist in page_obj.object_list %}
-        <div class="weui-flex">
-            {% for item in sublist %}
-            <div class="weui-flex__item">
-                <article class="weui-article">
-                <h1>{{item.titleCh}}</h1>
-                <a href="{% url 'detail' game_id=item.gameId %}">
-                <section>
-                    <h3>{{ item.platform }}
-                        {% ifequal item.hasChinese 1 %}有中文{% else %}无中文{% endifequal %} </h3>
-                    <p>
-                        <img src="{{ item.cover|first|show_pic:"cover,list_icon_w200" }}" alt="" width="200px">
-                    </p>
-                    <p>
-                        {{ item.intro|striptags|truncatechars:100 }}
-                    </p>
-                </section>
-                </a>
-            </article>
-            </div>
+    <div class="page">
+        <div class="page__hd">
+            <h1 class="page__title">游戏列表</h1>
+            <p class="page__desc"></p>
+        </div>
+        <div class="page__bd page__bd_spacing">
+            {% for sublist in page_obj.object_list %}
+                <div class="weui-flex">
+                    {% for item in sublist %}
+                        <div class="weui-flex__item">
+                            <article class="weui-article">
+                                <h1>
+                                    <a href="{% url 'detail' game_id=item.gameId %}">{{ item.titleCh }}</a>
+                                </h1>
+                                <section>
+                                    <div class="weui-cells">
+                                        <div class="weui-cell  weui-cell_example">
+                                            <div class="weui-cell__hd">{% for console in item.platform|split:',' %}
+                                                <a href="{% url 'detail' game_id=item.gameId %}">
+                                                    <img src="{% static icons|get_item:console %}"
+                                                         alt="{{ console }}" class="console-icons">
+                                                </a>
+                                            {% endfor %}
+                                            </div>
+                                            <div class="weui-cell__bd">
+                                                <p>{% ifequal item.hasChinese 1 %}有中文{% else %}无中文{% endifequal %}</p>
+                                            </div>
+                                            <div class="weui-cell__ft"></div>
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <img src="{{ item.cover|first|show_pic:"cover,list_icon_w400" }}" alt="">
+                                    </p>
+                                    <div class="weui-cells__title">
+                                        {{ item.intro|striptags|truncatechars:100 }}
+                                    </div>
+                                </section>
+                            </article>
+                        </div>
+                    {% endfor %}
+                </div>
             {% endfor %}
         </div>
-        {% endfor %}
+
+        <!-- 分页 -->
+        <nav aria-label="Page navigation" style="text-align: center">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li>
+                        <a href="{% url "list.page" platform=platform page=1 %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% for p in page_obj.paginator.page_range %}
+                    <li {% if p == page_obj.number %}class="active"{% endif %}>
+                        <a href="{% url "list.page" platform=platform page=p %}">{{ p }}</a></li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li>
+                        <a href="{% url "list.page" platform=platform page=page_obj.next_page_number %}"
+                           aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
     </div>
-</div>
 {% endblock %}
-    <script type="text/template" id="footerTmpl">
-        <div class="page__ft">
-            <a href="javascript:home()"><img src="images/icon_footer_link.png" /></a>
-        </div>
-    </script>
+<script type="text/template" id="footerTmpl">
+    <div class="page__ft">
+        <a href="javascript:home()"><img src="{% static "weui/images/icon_footer_link.png" %}"/></a>
+    </div>
+</script>
 
 
 <script src="{% static "weui/zepto.min.js" %}"></script>
-    <script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
-    <script src="{% static "weui/weui.min.js" %}"></script>
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script src="{% static "weui/weui.min.js" %}"></script>
 
 </body>
 </html>

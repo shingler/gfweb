@@ -7,8 +7,15 @@ from django.shortcuts import render
 from GameModel.models import Currency, MagzineScores, Shelf, Subjects
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .util import *
+
 active = "games"
 theme = "weui"
+
+# 图标列表
+icons = {
+    "ps4": "image/ps4.jpg",
+    "switch": "image/ns.png"
+}
 
 
 # 游戏列表页
@@ -61,7 +68,8 @@ def list(request, platform="all", page=1):
         'page_obj': current_page_data,
         'platform': platform,
         'active': active,
-        'kw': kw
+        'kw': kw,
+        "icons": icons
     }
 
     return render(request, template_path, render_data)
@@ -104,11 +112,6 @@ def detail(request, game_id=0):
     # 图片轮播（优先取截图，无截图用封图）
     # carousel = info.thumb if len(info.thumb) > 0 else info.cover
     carousel = info.thumb
-    # 图标列表
-    icons = {
-        "ps4": "image/ps4.jpg",
-        "switch": "image/ns.png"
-    }
 
     render_data = {
         'info': info, 'score': score, 'active': active,
