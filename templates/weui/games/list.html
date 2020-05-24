@@ -21,10 +21,8 @@
                                     <div class="weui-cells">
                                         <div class="weui-cell  weui-cell_example">
                                             <div class="weui-cell__hd">{% for console in item.platform|split:',' %}
-                                                <a href="{% url 'detail' game_id=item.gameId %}">
-                                                    <img src="{% static icons|get_item:console %}"
+                                                <img src="{% static icons|get_item:console %}"
                                                          alt="{{ console }}" class="console-icons">
-                                                </a>
                                             {% endfor %}
                                             </div>
                                             <div class="weui-cell__bd">
@@ -34,7 +32,9 @@
                                         </div>
                                     </div>
                                     <p>
-                                        <img src="{{ item.cover|first|show_pic:"cover,list_icon_w400" }}" alt="">
+                                        <a href="{% url 'detail' game_id=item.gameId %}">
+                                            <img src="{{ item.cover|first|show_pic:"cover,list_icon_w400" }}" alt="">
+                                        </a>
                                     </p>
                                     <div class="weui-cells__title">
                                         {{ item.intro|striptags|truncatechars:100 }}

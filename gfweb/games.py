@@ -13,8 +13,8 @@ theme = "weui"
 
 # 图标列表
 icons = {
-    "ps4": "image/ps4.jpg",
-    "switch": "image/ns.png"
+    "ps4": "image/ps4.png",
+    "switch": "image/switch.png"
 }
 
 
