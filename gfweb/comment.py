@@ -58,7 +58,7 @@ def magazine(request):
     if theme == "weui":
         template = "weui/review/magazine.html"
     else:
-        template = "comment/magazine.html"
+        template = "bootstrap/comment/magazine.html"
 
     # 获取评测所属游戏
     for item in current_page_data.object_list:
