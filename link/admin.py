@@ -1,16 +1,15 @@
 from django.contrib import admin
 
 # Register your models here.
-import json
-
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
-from GameModel.models import Shelf, Subjects, MagzineScores
+from GameModel.models import Shelf, Subjects, MagzineScores, Platforms
 from gfweb import translate
 import numpy
 from django.contrib import admin
 from . import util
+import json
 
 # 面包屑导航
 from link.models import Link
@@ -182,28 +181,14 @@ class LinkAdmin(admin.ModelAdmin):
                     print(shelf.officialGameIds, sub_list)
                     shelf.__setattr__("sub_list", sub_list)
 
-            ps4_hk_list = Subjects.objects.filter(platform="ps4", saleArea="hk", onShelf=False).order_by(
-                "officialGameId")
-            switch_jp_list = Subjects.objects.filter(platform="switch", saleArea="jp", onShelf=False).order_by(
-                "officialGameId")
-            switch_us_list = Subjects.objects.filter(platform="switch", saleArea="us", onShelf=False).order_by(
-                "subject")
-            switch_hk_list = Subjects.objects.filter(platform="switch", saleArea="hk", onShelf=False).order_by(
-                "officialGameId")
-            switch_za_list = Subjects.objects.filter(platform="switch", saleArea="za", onShelf=False).order_by(
-                "subject")
+            # 读取platforms信息。游戏列表从ajax接口读取
+            platforms = Platforms.objects.order_by("-platform").order_by("countryArea").all()
 
             # 面包屑
             breadcrumb["关联游戏"] = ""
 
             render_data = {
-                "ps4_list": {
-                    "香港": ps4_hk_list,
-                },
-                "switch_list": {
-                    "香港": switch_hk_list, "日本": switch_jp_list,
-                    "美国": switch_us_list, "南非": switch_za_list
-                },
+                "list": platforms,
                 "shelf": shelf,
                 "breadcrumb": breadcrumb
             }
@@ -250,27 +235,40 @@ class LinkAdmin(admin.ModelAdmin):
             shelf.score = sum(scores) / len(scores)
             shelf.save()
 
-        # 加载游戏评测
+        # 加载已关联的游戏评测
         mags = MagzineScores.objects.filter(gameId=game_id)
         if mags:
             shelf.__setattr__("mags", mags)
-        # 加载所有评测
-        # ign = MagzineScores.objects.filter(magazine="IGN", gameId=0).order_by("subject")
-        gamespot = MagzineScores.objects.filter(magazine='gamespot', gameId=0).order_by("subject")
-        metacritic = MagzineScores.objects.filter(magazine='metacritic', gameId=0).order_by("subject")
-        famitsu = MagzineScores.objects.filter(magazine='famitsu', gameId=0).order_by("subject")
+
+        # 加载评测媒体名
+        magazines = MagzineScores.MAG_CHOICE
 
         # 面包屑
         breadcrumb["关联评测"] = ""
 
         render_data = {
             "shelf": shelf,
-            "magzine": {
-                "gamespot": gamespot, "metacritics": metacritic, "famitsu": famitsu
-            },
+            "magazines": magazines,
             "breadcrumb": breadcrumb
         }
+
         return render(request, "myadmin/magzine.html", render_data)
 
     def changelist_view(self, request, extra_context=None):
         return self.list(request)
+
+    # json格式游戏列表数据
+    def game_list(request):
+        platform = request.GET["platform"].lower()
+        saleArea = request.GET["saleArea"].lower()
+        subject_list = Subjects.objects.filter(platform=platform, saleArea=saleArea, onShelf=False)\
+            .order_by("officialGameId").values("officialGameId", "subject", "url")
+        return JsonResponse(list(subject_list), safe=False, json_dumps_params={'ensure_ascii': False})
+
+    # json格式评测数据
+    def review_list(request):
+        magazine = request.GET["magazine"].lower()
+        review_list = MagzineScores.objects.filter(gameId=0, magazine=magazine)\
+            .order_by("subject").values("id", "subject", "score", "url")
+        return JsonResponse(list(review_list), safe=False, json_dumps_params={'ensure_ascii': False})
+
