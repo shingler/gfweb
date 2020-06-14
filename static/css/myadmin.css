@@ -1,6 +1,16 @@
+.contaner {
+    width: 90%;
+}
 .gamelist {
     height: 350px;
     overflow: scroll;
+}
+p.list-group-item-text {
+    overflow-y: hidden;
+    max-height: 109px;
+}
+.row {
+    padding-bottom: 10px;
 }
 
 /* 继承weui */

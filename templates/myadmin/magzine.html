@@ -1,18 +1,19 @@
 {% extends "./base.html" %}
 {% load static %}
 {% block mainbody %}
-
     <form action="{% url "game.magzine" game_id=shelf.gameId|default_if_none:"0" %}" method="post">
         {% csrf_token %}
         <div class="row">
             <div class="col-lg-6">
                 <div class="input-group">
-                    <span class="input-group-addon">游戏名</span>
-                    <ol class="breadcrumb">
-                        <li>{{ shelf.titleCh }}</li>
-                        <li>{{ shelf.titleJp }}</li>
-                        <li>{{ shelf.titleEn }}</li>
-                    </ol>
+                    <h4 class="list-group-item-heading">{{ shelf.titleCh }}</h4>
+                    {% ifnotequal shelf.titleJp "" %}
+                        <h4 class="list-group-item-heading">{{ shelf.titleJp }}</h4>
+                    {% endifnotequal %}
+                    {% ifnotequal shelf.titleEn "" %}
+                        <h4 class="list-group-item-heading">{{ shelf.titleEn }}</h4>
+                    {% endifnotequal %}
+
                 </div>
             </div>
         </div>
