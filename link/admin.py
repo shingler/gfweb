@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
 from GameModel.models import Shelf, Subjects, MagzineScores, Platforms
@@ -16,6 +16,12 @@ from link.models import Link
 
 breadcrumb = {
     "游戏列表": "myadmin.game.list",
+}
+
+# 图标列表
+icons = {
+    "ps4": "image/ps4.png",
+    "switch": "image/switch.png"
 }
 
 
@@ -45,7 +51,8 @@ class LinkAdmin(admin.ModelAdmin):
 
         render_data = {
             "pagitor": current_page,
-            "breadcrumb": breadcrumb
+            "breadcrumb": breadcrumb,
+            "icons": icons
         }
         return render(request, "myadmin/list.html", render_data)
 
@@ -253,6 +260,15 @@ class LinkAdmin(admin.ModelAdmin):
         }
 
         return render(request, "myadmin/magzine.html", render_data)
+
+    # 删除关联数据
+    def unlink(request, game_id=0):
+        shelf = Shelf.objects.get(gameId=game_id)
+        if shelf is None:
+            return JsonResponse({"status": 0, "msg": "不存在的数据"})
+
+        shelf.delete()
+        return JsonResponse({"status": 1, "msg": "删除成功"})
 
     def changelist_view(self, request, extra_context=None):
         return self.list(request)

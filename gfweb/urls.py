@@ -42,10 +42,11 @@ urlpatterns = [
     # 游戏关联页面
     path('admin/refer/list', myadmin.LinkAdmin.list, name="myadmin.game.list"),
     path('admin/refer/list/<int:page>', myadmin.LinkAdmin.list, name="myadmin.game.list"),
-    path('admin/refer/link/', myadmin.LinkAdmin.link, name="game.link"),
-    path('admin/refer/magzine/<game_id>/', myadmin.LinkAdmin.magzine, name="game.magzine"),
+    path('admin/refer/link/', myadmin.LinkAdmin.link, name="myadmin.game.link"),
+    path('admin/refer/magzine/<game_id>/', myadmin.LinkAdmin.magzine, name="myadmin.game.magzine"),
     path('admin/refer/game_list', myadmin.LinkAdmin.game_list, name="myadmin.game.list.ajax"),
     path('admin/refer/review_list', myadmin.LinkAdmin.review_list, name="myadmin.review.list.ajax"),
+    path('admin/refer/list/unlink/<game_id>', myadmin.LinkAdmin.unlink, name="myadmin.game.link.unlink"),
 
     # 首页
     path('', games.list, name="list"),
