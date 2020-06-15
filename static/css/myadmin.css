@@ -12,6 +12,11 @@ p.list-group-item-text {
 .row {
     padding-bottom: 10px;
 }
+a.add-link {
+    float: right;
+    position: relative;
+    top: -60px;
+}
 
 /* 继承weui */
 .weui-footer, .weui-footer__link {

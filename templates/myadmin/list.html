@@ -3,43 +3,44 @@
 {% load myfilter %}
 {% block mainbody %}
     <div class="alert alert-warning alert-dismissible hidden" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                aria-hidden="true">&times;</span></button>
-        <strong>Warning!</strong> Better check yourself, you're not looking too good.
+        <p><strong>Warning!</strong> Better check yourself, you're not looking too good.</p>
     </div>
 
-    <p>游戏列表</p>
-    <p><a class="btn-lg btn-primary" href="{% url "myadmin.game.link" %}">添加游戏合集</a>
+    <h4 class="list-group-item-heading">游戏列表</h4>
+    <p>
+        <!-- 分页 -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if pagitor.has_previous %}
+                    <li>
+                        <a href="{% url "myadmin.game.list" page=1 %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% for p in pagitor.paginator.page_range %}
+                    <li {% if p == pagitor.number %}class="active"{% endif %}>
+                        <a href="{% url "myadmin.game.list" page=p %}">{{ p }}</a></li>
+                {% endfor %}
+                {% if pagitor.has_next %}
+                    <li>
+                        <a href="{% url "myadmin.game.list" page=pagitor.next_page_number %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        <a class="btn-lg btn-primary glyphicon glyphicon-plus add-link" href="{% url "myadmin.game.link" %}">添加关联数据</a>
     </p>
-    <!-- 分页 -->
-    <nav aria-label="Page navigation">
-        <ul class="pagination">
-            {% if pagitor.has_previous %}
-                <li>
-                    <a href="{% url "myadmin.game.list" page=1 %}" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-            {% endif %}
-            {% for p in pagitor.paginator.page_range %}
-                <li {% if p == pagitor.number %}class="active"{% endif %}>
-                    <a href="{% url "myadmin.game.list" page=p %}">{{ p }}</a></li>
-            {% endfor %}
-            {% if pagitor.has_next %}
-                <li>
-                    <a href="{% url "myadmin.game.list" page=pagitor.next_page_number %}" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
+
     <ul class="list-group">
         {% for game in pagitor.object_list %}
-            <li class="list-group-item">
-                <span class="col-md-4"><a href="{% url 'detail' game_id=game.gameId %}">{{ game.titleCh }}</a></span>
+            <li class="list-group-item" data-gid="{{ game.gameId }}">
+                <span class="col-md-3"><a href="{% url 'detail' game_id=game.gameId %}">{{ game.titleCh }}</a></span>
                 <span><img src="{{ game.cover|first|show_pic:"cover,list_icon_w200" }}" width="120"/></span>
-                <span>{% ifequal game.hasChinese True %}有中文{% else %}无中文{% endifequal %}</span>
+                {% ifequal game.hasChinese True %}<span class="label label-success glyphicon glyphicon-ok"> 有中文</span>
+                {% else %}<span class="label label-danger glyphicon glyphicon-remove"> 无中文</span>{% endifequal %}
                 <span>
                     {% for console in game.platform|split:',' %}
                     <img src="{% static icons|get_item:console %}" alt="{{ console }}" style="width: 40px; margin-right: 16px; ">
@@ -54,7 +55,7 @@
                     关联媒体评测</a>
 
                 <button type="button" class="btn btn-danger btn-sm glyphicon glyphicon-trash" data-toggle="modal"
-                        data-target="#unlinkModal" data-gid="{{ game.gameId }}"
+                        data-target="#unlinkModal"
                         data-url="{% url "myadmin.game.link.unlink" game_id=game.gameId %}">
                     删除关联数据
                 </button>
@@ -87,7 +88,8 @@
     </nav>
 
     <!-- Modal -->
-    <div class="modal fade" id="unlinkModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal fade" id="unlinkModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         data-url="" data-gid="0">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -100,13 +102,41 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">我再考虑考虑</button>
-                    <button type="button" class="btn btn-danger">真的要删除</button>
+                    <button type="button" id="modal-confirm" class="btn btn-danger">真的要删除</button>
                 </div>
             </div>
         </div>
     </div>
 
 <script type="text/javascript">
+$("#unlinkModal").on("show.bs.modal", function(e) {
+    var url = $(e.relatedTarget).attr("data-url");
+    var gid = $(e.relatedTarget).parents("li").attr("data-gid");
+    $(this).attr("data-url", url);
+    $(this).attr("data-gid", gid);
+});
+$("#modal-confirm").on('click', function(e) {
+    var url = $(this).parents("#unlinkModal").attr("data-url");
+    var gid = $(this).parents("#unlinkModal").attr("data-gid");
+    $.get(url, function(data, status) {
+        if (data.status == 1) {
+            $("li[data-gid="+gid+"]").remove();
+            $("div.alert p").text(data.msg);
+            $("div.alert").removeClass("alert-warning");
+            $("div.alert").addClass("alert-success");
+        } else {
+            $("div.alert").removeClass("alert-success");
+            $("div.alert").addClass("alert-warning");
+            $("div.alert p").text(data.msg);
+        }
+    });
+    $("div.alert").removeClass("hidden");
+    $("#unlinkModal").modal('hide');
+    // 2秒后隐藏警告框
+    setTimeout(function(){
+        $("div.alert").addClass("hidden");
+    }, 2000);
+});
 
 </script>
 {% endblock %}
