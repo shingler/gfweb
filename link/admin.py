@@ -1,3 +1,5 @@
+import time
+
 from django.contrib import admin
 
 # Register your models here.
@@ -10,6 +12,7 @@ import numpy
 from django.contrib import admin
 from . import util
 import json
+import logging
 
 # 面包屑导航
 from link.models import Link
@@ -23,6 +26,7 @@ icons = {
     "ps4": "image/ps4.png",
     "switch": "image/switch.png"
 }
+logger = logging.getLogger("gfweb.debug")
 
 
 @admin.register(Link)
@@ -65,13 +69,12 @@ class LinkAdmin(admin.ModelAdmin):
             linked = []
             if "linked" in request.POST:
                 linked = request.POST.getlist("linked")
-            if "ps4-games" in request.POST:
-                ps4_ids = request.POST.getlist("ps4-games")
-            if "switch-games" in request.POST:
-                switch_ids = request.POST.getlist("switch-games")
-            gameIds = numpy.hstack((ps4_ids, switch_ids, linked))
-            # print(gameIds)
+            if "game_ids" in request.POST:
+                game_ids = request.POST.getlist("game_ids")
+
+            gameIds = numpy.hstack((game_ids, linked))
             games = Subjects.objects.filter(officialGameId__in=gameIds)
+
             shelf = Shelf()
             if "gameId" in request.POST and request.POST["gameId"] != "":
                 shelf.gameId = request.POST["gameId"]
@@ -133,8 +136,11 @@ class LinkAdmin(admin.ModelAdmin):
             shelf.platform = ",".join(set(platform))
 
             # 无中文介绍，翻译
+            logger.debug("未翻译，用时:%d" % int(time.process_time()))
+
             if "hk" not in intro:
                 intro["trans"] = translate.translate(list(intro.values())[0])
+                logger.debug("执行翻译后，用时:%d" % int(time.process_time()))
 
             shelf.intro = json.dumps(intro, ensure_ascii=False)
             if shelf.language.find("中文"):
@@ -146,6 +152,7 @@ class LinkAdmin(admin.ModelAdmin):
             for s in games:
                 s.onShelf = True
                 s.save()
+            logger.debug("已保存数据，用时:%d" % int(time.process_time()))
 
             # 保存了之后，将图片上传到oss，并更新
             # 上传到oss并获得路径
@@ -176,6 +183,8 @@ class LinkAdmin(admin.ModelAdmin):
                 shelf.thumb = json.dumps(oss_thumb)
                 # print(shelf.cover)
                 shelf.save()
+
+            logger.debug("将图片保存至OSS，用时:%d" % int(time.process_time()))
 
             return HttpResponseRedirect("/admin/refer/list")
 
@@ -277,14 +286,13 @@ class LinkAdmin(admin.ModelAdmin):
     def game_list(request):
         platform = request.GET["platform"].lower()
         saleArea = request.GET["saleArea"].lower()
-        subject_list = Subjects.objects.filter(platform=platform, saleArea=saleArea, onShelf=False)\
+        subject_list = Subjects.objects.filter(platform=platform, saleArea=saleArea, onShelf=False) \
             .order_by("officialGameId").values("officialGameId", "subject", "url")
         return JsonResponse(list(subject_list), safe=False, json_dumps_params={'ensure_ascii': False})
 
     # json格式评测数据
     def review_list(request):
         magazine = request.GET["magazine"].lower()
-        review_list = MagzineScores.objects.filter(gameId=0, magazine=magazine)\
+        review_list = MagzineScores.objects.filter(gameId=0, magazine=magazine) \
             .order_by("subject").values("id", "subject", "score", "url")
         return JsonResponse(list(review_list), safe=False, json_dumps_params={'ensure_ascii': False})
-

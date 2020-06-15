@@ -1,7 +1,7 @@
 {% extends "./base.html" %}
 {% load static %}
 {% block mainbody %}
-    <form action="{% url "game.link" %}" method="post">
+    <form action="{% url "myadmin.game.link" %}" method="post">
     <input type="hidden" name="gameId" value="{% ifnotequal shelf None %}{{ shelf.gameId }}{% endifnotequal %}">
         {% csrf_token %}
         <div class="row">
