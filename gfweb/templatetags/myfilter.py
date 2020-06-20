@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 from django import template
+from django.middleware import csrf
 from link import util
 register = template.Library()
 
@@ -34,3 +35,13 @@ def show_pic(url, param=''):
             return om.get_url(url, params[0], params[1])
         else:
             return om.get_url(url, params[0])
+
+# 获取csrf_token
+@register.filter(name="get_csrf")
+def get_csrf(request):
+    return csrf.get_token(request)
+
+# 封图是否已转存
+@register.filter(name="if_save_to_oss")
+def if_save_to_oss(url):
+    return not url.startswith("http")

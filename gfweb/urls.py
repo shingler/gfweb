@@ -47,6 +47,7 @@ urlpatterns = [
     path('admin/refer/game_list', myadmin.LinkAdmin.game_list, name="myadmin.game.list.ajax"),
     path('admin/refer/review_list', myadmin.LinkAdmin.review_list, name="myadmin.review.list.ajax"),
     path('admin/refer/list/unlink/<game_id>', myadmin.LinkAdmin.unlink, name="myadmin.game.link.unlink"),
+    path('admin/refer/link/picture/<game_id>', myadmin.LinkAdmin.picture, name="myadmin.game.link.picture"),
 
     # 首页
     path('', games.list, name="list"),

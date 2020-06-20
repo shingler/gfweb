@@ -154,37 +154,7 @@ class LinkAdmin(admin.ModelAdmin):
                 s.save()
             logger.debug("已保存数据，用时:%d" % int(time.process_time()))
 
-            # 保存了之后，将图片上传到oss，并更新
-            # 上传到oss并获得路径
-            if shelf.gameId:
-                om = util.OssManager()
-
-                cover_bucket = 'cover'
-                oss_covers = []
-                for c in covers:
-                    try:
-                        oss_covers.append(om.upload(cover_bucket, c, shelf.gameId))
-                    except util.OssException as ex:
-                        print(ex)
-                    except Exception as ex:
-                        print(ex)
-
-                thumb_bucket = 'thumb'
-                oss_thumb = []
-                for t in thumb:
-                    try:
-                        oss_thumb.append(om.upload(thumb_bucket, t, shelf.gameId))
-                    except util.OssException as ex:
-                        print(ex)
-                    except Exception as ex:
-                        print(ex)
-
-                shelf.cover = json.dumps(oss_covers)
-                shelf.thumb = json.dumps(oss_thumb)
-                # print(shelf.cover)
-                shelf.save()
-
-            logger.debug("将图片保存至OSS，用时:%d" % int(time.process_time()))
+            # v 1.1.0 将转存改为异步处理
 
             return HttpResponseRedirect("/admin/refer/list")
 
@@ -278,6 +248,56 @@ class LinkAdmin(admin.ModelAdmin):
 
         shelf.delete()
         return JsonResponse({"status": 1, "msg": "删除成功"})
+
+    # 图片转存OSS
+    def picture(request, game_id=0):
+        if game_id != 0:
+            # 保存了之后，将图片上传到oss，并更新
+            # 上传到oss并获得路径
+            game_obj = Shelf.objects.get(gameId=game_id)
+            if game_obj:
+                om = util.OssManager()
+
+                # 转存封图逻辑
+                # 先判断封图是否已转存
+                covers = json.loads(game_obj.cover.replace('\'', '\"'))
+                cover_bucket = 'cover'
+                if len(covers) > 0 and covers[0].startswith("http"):
+                    oss_covers = []
+                    for c in covers:
+                        # 通过域名判断是否已转存
+                        try:
+                            oss_covers.append(om.upload(cover_bucket, c, game_obj.gameId))
+                        except util.OssException as ex:
+                            print(ex)
+                        except Exception as ex:
+                            print(ex)
+                    game_obj.cover = json.dumps(oss_covers)
+
+                # 转存截图逻辑
+                # 先判断截图是否已转存
+                thumb = json.loads(game_obj.thumb.replace('\'', '\"'))
+                thumb_bucket = 'thumb'
+                if len(thumb) > 0 and thumb[0].startswith("http"):
+                    oss_thumb = []
+                    for t in thumb:
+                        try:
+                            oss_thumb.append(om.upload(thumb_bucket, t, game_obj.gameId))
+                        except util.OssException as ex:
+                            print(ex)
+                        except Exception as ex:
+                            print(ex)
+
+                    game_obj.thumb = json.dumps(oss_thumb)
+                # print(shelf.cover)
+                game_obj.save()
+
+                logger.debug("将图片保存至OSS，用时:%d" % int(time.process_time()))
+                return JsonResponse({"status": 1, "msg": "转存成功"})
+            else:
+                return JsonResponse({"status": 0, "msg": "不存在的游戏"})
+        else:
+            return JsonResponse({"status": 0, "msg": "非法请求"})
 
     def changelist_view(self, request, extra_context=None):
         return self.list(request)

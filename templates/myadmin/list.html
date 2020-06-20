@@ -34,32 +34,48 @@
         <a class="btn-lg btn-primary glyphicon glyphicon-plus add-link" href="{% url "myadmin.game.link" %}">添加关联数据</a>
     </p>
 
-    <ul class="list-group">
+    <ul class="list-group myadmin-link-list">
         {% for game in pagitor.object_list %}
             <li class="list-group-item" data-gid="{{ game.gameId }}">
                 <span class="col-md-3"><a href="{% url 'detail' game_id=game.gameId %}">{{ game.titleCh }}</a></span>
-                <span><img src="{{ game.cover|first|show_pic:"cover,list_icon_w200" }}" width="120"/></span>
-                {% ifequal game.hasChinese True %}<span class="label label-success glyphicon glyphicon-ok"> 有中文</span>
-                {% else %}<span class="label label-danger glyphicon glyphicon-remove"> 无中文</span>{% endifequal %}
-                <span>
+                <span class="game-cover"><img src="{{ game.cover|first|show_pic:"cover,list_icon_w200" }}" width="120"/></span>
+                {% ifequal game.hasChinese True %}
+                <span class="game-has-chinese label label-success glyphicon glyphicon-ok"> 有中文</span>
+                {% else %}
+                <span class="game-has-chinese label label-danger glyphicon glyphicon-remove"> 无中文</span>
+                {% endifequal %}
+                {% ifequal game.cover|first|if_save_to_oss True %}
+                <span class="cover-has-save label label-success glyphicon glyphicon-ok"> 已转存</span>
+                {% else %}
+                <span class="cover-has-save label label-danger glyphicon glyphicon-remove"
+                      data-toggle="tooltip" data-placement="right" title="未转存会导致因图片加载慢导致网页打开速度慢"> 未转存</span>
+                {% endifequal %}
+                <span class="platform-icons">
                     {% for console in game.platform|split:',' %}
                     <img src="{% static icons|get_item:console %}" alt="{{ console }}" style="width: 40px; margin-right: 16px; ">
                     {% endfor %}
                 </span>
-                <a href="{% url "myadmin.game.link" %}?game_id={{ game.gameId }}"
-                   class="btn btn-default btn-sm glyphicon glyphicon-wrench">
-                    关联游戏数据</a>
+                <span class="btn-container right">
+                    <a href="{% url "myadmin.game.link" %}?game_id={{ game.gameId }}"
+                       class="btn btn-default btn-sm glyphicon glyphicon-wrench">
+                        关联游戏数据</a>
 
-                <a href="{% url "myadmin.game.magzine" game_id=game.gameId %}"
-                   class="btn btn-default btn-sm glyphicon glyphicon-list-alt">
-                    关联媒体评测</a>
+                    <a href="{% url "myadmin.game.magzine" game_id=game.gameId %}"
+                       class="btn btn-default btn-sm glyphicon glyphicon-list-alt">
+                        关联媒体评测</a>
 
-                <button type="button" class="btn btn-danger btn-sm glyphicon glyphicon-trash" data-toggle="modal"
-                        data-target="#unlinkModal"
-                        data-url="{% url "myadmin.game.link.unlink" game_id=game.gameId %}">
-                    删除关联数据
-                </button>
+                    <button type="button" class="btn btn-info btn-sm glyphicon glyphicon-picture save-to-oss"
+                            data-loading-text="转存中..." data-complete-text="已完成" autocomplete="off"
+                            data-url="{% url "myadmin.game.link.picture" game_id=game.gameId %}">
+                        图片转存
+                    </button>
 
+                    <button type="button" class="btn btn-danger btn-sm glyphicon glyphicon-trash" data-toggle="modal"
+                            data-target="#unlinkModal"
+                            data-url="{% url "myadmin.game.link.unlink" game_id=game.gameId %}">
+                        删除关联数据
+                    </button>
+                </span>
             </li>
         {% endfor %}
     </ul>
@@ -108,35 +124,5 @@
         </div>
     </div>
 
-<script type="text/javascript">
-$("#unlinkModal").on("show.bs.modal", function(e) {
-    var url = $(e.relatedTarget).attr("data-url");
-    var gid = $(e.relatedTarget).parents("li").attr("data-gid");
-    $(this).attr("data-url", url);
-    $(this).attr("data-gid", gid);
-});
-$("#modal-confirm").on('click', function(e) {
-    var url = $(this).parents("#unlinkModal").attr("data-url");
-    var gid = $(this).parents("#unlinkModal").attr("data-gid");
-    $.get(url, function(data, status) {
-        if (data.status == 1) {
-            $("li[data-gid="+gid+"]").remove();
-            $("div.alert p").text(data.msg);
-            $("div.alert").removeClass("alert-warning");
-            $("div.alert").addClass("alert-success");
-        } else {
-            $("div.alert").removeClass("alert-success");
-            $("div.alert").addClass("alert-warning");
-            $("div.alert p").text(data.msg);
-        }
-    });
-    $("div.alert").removeClass("hidden");
-    $("#unlinkModal").modal('hide');
-    // 2秒后隐藏警告框
-    setTimeout(function(){
-        $("div.alert").addClass("hidden");
-    }, 2000);
-});
-
-</script>
+<script type="text/javascript" src="{% static "js/link/list.js" %}"></script>
 {% endblock %}

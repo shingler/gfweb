@@ -35,6 +35,28 @@ class OssManager:
         else:
             return ""
 
+    # 由id和src生成远端代码名
+    def get_remote_key(self, shelf_id, src):
+        # 格式：/shelf_id/md5(不带扩展名的src路径)[0:8].扩展名
+        fname, extname = path.splitext(src)
+
+        m = md5()
+        m.update(fname.encode(encoding='utf-8'))
+        str_md5 = m.hexdigest()
+        dest = "%s/%s%s" % (shelf_id, str_md5[0:8], extname)
+        return dest
+
+    # 指定key是否已存在
+    def is_exist(self, bucket_name, key):
+        bucket = self.get_bucket(bucket_name)
+        if bucket == "":
+            raise OssException("不存在的bucket")
+        auth = oss2.Auth(self.key_id, self.key_secret)
+        bucket = oss2.Bucket(auth, self.end_point, bucket)
+        return bucket.object_exists(key)
+
+
+    # 上传
     def upload(self, bucket_name, src, shelf_id):
         bucket = self.get_bucket(bucket_name)
         if bucket == "":
@@ -43,13 +65,7 @@ class OssManager:
         auth = oss2.Auth(self.key_id, self.key_secret)
         bucket = oss2.Bucket(auth, self.end_point, bucket)
 
-        # 格式：/shelf_id/md5(不带扩展名的src路径)[0:8].扩展名
-        fname, extname = path.splitext(src)
-
-        m = md5()
-        m.update(fname.encode(encoding='utf-8'))
-        str_md5 = m.hexdigest()
-        dest = "%s/%s%s" % (shelf_id, str_md5[0:8], extname)
+        dest = self.get_remote_key(shelf_id, src)
 
         # 网络流上传
         input = requests.get(src)
