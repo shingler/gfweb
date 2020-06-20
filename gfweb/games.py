@@ -14,7 +14,12 @@ theme = "weui"
 # 图标列表
 icons = {
     "ps4": "image/ps4.png",
-    "switch": "image/switch.png"
+    "switch": "image/switch.png",
+}
+logo = {
+    "Famitsu": "image/famitsu.png",
+    "metacritic": "image/metacritic.png",
+    "gamespot": "image/gamespot",
 }
 
 
@@ -56,13 +61,13 @@ def list(request, platform="all", page=1):
     except EmptyPage:
         current_page_data = p.page(p.num_pages)
 
-    template_path = "games/list.html"
+    template_path = "weui/games/list.html"
 
-    if theme == "weui":
+    if theme == "bootstrap":
         # weui每行数量固定，所以对数据做均等拆分
         obj_list = current_page_data.object_list
         current_page_data.object_list = split_list(obj_list, 4)
-        template_path = "weui/games/list.html"
+        template_path = "bootstrap/games/list.html"
 
     render_data = {
         'page_obj': current_page_data,
@@ -120,10 +125,10 @@ def detail(request, game_id=0):
     }
     print(render_data["breadcrumb"])
 
-    if theme == "weui":
-        template = "weui/games/detail.html"
-    else:
+    if theme == "bootstrap":
         template = "games/detail.html"
+    else:
+        template = "weui/games/detail.html"
     return render(request, template, render_data)
 
 

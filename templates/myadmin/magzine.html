@@ -1,7 +1,7 @@
 {% extends "./base.html" %}
 {% load static %}
 {% block mainbody %}
-    <form action="{% url "game.magzine" game_id=shelf.gameId|default_if_none:"0" %}" method="post">
+    <form action="{% url "myadmin.game.magzine" game_id=shelf.gameId|default_if_none:"0" %}" method="post">
         {% csrf_token %}
         <div class="row">
             <div class="col-lg-6">

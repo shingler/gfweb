@@ -71,7 +71,6 @@
                 </div>
             </div>
             <div class="col-sm-6 col-md-4">
-                {% ifnotequal score|length 0 %}
                 <span>媒体评分</span>
                 <div class="list-group">
                     {% for c in score %}
@@ -86,7 +85,6 @@
                         </a>
                     {% endfor %}
                 </div>
-                {% endifnotequal %}
             </div>
         </div>
     </div>

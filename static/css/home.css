@@ -15,6 +15,9 @@
     margin: 0 auto;
     padding: 5px 5px 5px 5px;
 }
+a:hover{
+    text-decoration: none;
+}
 /* 平台图标 */
 .console-icons {
     width: 40px;
