@@ -25,3 +25,21 @@ a:hover{
     margin-right: 16px;
     display: inline;
 }
+/* 搜索结果 */
+.search-item {
+    cursor: pointer;
+}
+.search-item-cover {
+    float: left;
+}
+.search-item-cover img {
+    width: 60px;
+    margin-right: 16px;
+    display: block;
+}
+.search-item-subject {
+    float: left;
+    top: 35%;
+    position: absolute;
+    margin-left: 15px;
+}
