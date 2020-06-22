@@ -19,7 +19,7 @@ icons = {
 logo = {
     "Famitsu": "image/famitsu.png",
     "metacritic": "image/metacritic.png",
-    "gamespot": "image/gamespot",
+    "gamespot": "image/gamespot.png",
 }
 
 
@@ -119,7 +119,7 @@ def detail(request, game_id=0):
     carousel = info.thumb
 
     render_data = {
-        'info': info, 'score': score, 'active': active,
+        'info': info, 'score': score, 'active': active, 'logo': logo,
         'rate_update': rate_update, 'carousel': carousel,
         'icons': icons, 'breadcrumb': breadcrumb(current_action, gameId=game_id)
     }

@@ -2,90 +2,113 @@
 {% load static %}
 {% load myfilter %}
 {% block mainbody %}
-    <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.min.css" %}">
-    <link href="{% static "bootstrap/css/bootstrap-theme.min.css" %}" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
-
+    <link rel="stylesheet" href="{% static "swiper/css/swiper.min.css" %}">
+    <script type="text/javascript" src="{% static "swiper/js/swiper.min.js" %}"></script>
     {% include "breadcrumb.html" %}
-    <div class="page-header">
-        <h1>{{ info.titleCh }}<small>{{ info.titleJp }}</small></h1>
-    </div>
-    <div class="jumbotron">
-        <div class="row">
-            <div class="col-sm-6 col-md-4">
-                <div class="thumbnail"><img src="{{ info.cover|first|show_pic:"cover,detail_pic_w500" }}" alt="{{ info.titleCh }}"/></div>
-                <div class="caption">{{ info.titleCh }}</div>
-                <div class="small">{{ info.intro|safe }}</div>
-            </div>
-            <div class="col-sm-6 col-md-4">
-                {% ifnotequal carousel|length 0 %}
-                <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
-                    <!-- Indicators -->
-                    <ol class="carousel-indicators">
-                        {% for _ in carousel|length|get_range %}
-                            <li data-target="#carousel-example-generic" data-slide-to="{{ forloop.counter0 }}"
-                                {% ifequal forloop.counter0 0 %}class="active"{% endifequal %}></li>
-                        {% endfor %}
-                    </ol>
 
-                    <!-- Wrapper for slides -->
-                    <div class="carousel-inner" role="listbox">
-                        {% for img in carousel %}
-                            <div class="item {% ifequal forloop.counter 1 %}active{% endifequal %}">
-                                <img src="{{ img|show_pic:"thumb,detail_pic_w500" }}" alt="...">
-                            </div>
-                        {% endfor %}
+    <div class="page">
+        <div class="page__hd">
+            <h1 class="page__title">{{ info.titleCh }}<small>{{ info.titleJp }}</small></h1>
+            <p class="page__desc"></p>
+        </div>
+
+        <div class="page__bd">
+            <!-- 图片轮播 -->
+            {% ifnotequal carousel|length 0 %}
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    {% for img in carousel %}
+                    <div class="swiper-slide">
+                        <img src="{{ img|show_pic:"thumb,detail_pic_w500" }}" class="swiper-lazy">
+                        <div class="swiper-lazy-preloader"></div>
                     </div>
-
-                    <!-- Controls -->
-                    <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
-                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
-                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
+                    {% endfor %}
                 </div>
-                {% endifnotequal %}
+                <!-- Add Pagination -->
+                <div class="swiper-pagination"></div>
+                <!-- Add Arrows -->
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+            </div>
+            {% endifnotequal %}
 
-                <div class="weui-cells__title">汇率更新于 {{ rate_update }}</div>
-                <div class="weui-cells">
-                    {% for p in info.price %}
+            <!-- 基本信息 -->
+            <article class="weui-article">
+                <h1>{{ info.titleCh }}</h1>
+                <section>
+                    <h2 class="title">综合评分</h2>
+                    <section>
+                        <h3><span class="weui-badge" style="margin-left: 5px;">{{ info.score|floatformat:"-1" }}</span></h3>
+                        <p>
+                            {{ info.intro|safe }}
+                        </p>
+
+                    </section>
+                </section>
+            </article>
+
+            <!-- 媒体评分 -->
+            <div class="weui-cells__title">媒体评分</div>
+            <div class="weui-cells">
+                {% for c in score %}
+                    <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url "magazine.review" c.id %}" target="_blank">
+                        <div class="weui-cell__hd" style="position: relative; margin-right: 10px;">
+                            <img src="{% static logo|get_item:c.magazine %}" style="width: 50px; display: block;"/>
+                        </div>
+                        <div class="weui-cell__bd">
+                            <p>{{ c.magazine }}</p>
+                            <p style="font-size: 13px; color: #888;">{{ c.subject }}</p>
+                        </div>
+                        <div class="weui-cell__ft">
+                            <span class="weui-badge" style="top: -0.4em; right: -0.4em;">{{ c.score }}</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
+            <!-- 价格一览 -->
+            <div class="weui-cells__title">价格一览 （汇率更新于 {{ rate_update }}）</div>
+            <div class="weui-cells">
+                {% for p in info.price %}
                     <a class="weui-cell  weui-cell_access weui-cell_example" href="{{ p.url }}" target="_blank">
                         <div class="weui-cell__hd">
                             {% for console in p.platform|split:',' %}
-                                <img src="{% static icons|get_item:console %}" alt="{{ console }}" style="width: 80px; margin-right: 16px; display: block;">
+                                <img src="{% static icons|get_item:console %}" alt="{{ console }}"
+                                     style="width: 50px; margin-right: 16px; display: block;">
                             {% endfor %}
                         </div>
                         <div class="weui-cell__bd">
-                            <p>{{ p.currency }} {{ p.latestPrice }}</p>
-                            <p style="font-size: 13px; color: #888; line-height: 0px;">{{ p.edition }}</p>
+                            <p>{{ p.edition }}</p>
+                            <p style="font-size: 13px; color: #888; line-height: 0px;">{{ p.currency }} {{ p.latestPrice }}</p>
                         </div>
                         <div class="weui-cell__ft">
-                            {% if p.latestPriceCNY %}合 人民币：{{ p.latestPriceCNY|floatformat:"-2" }} 元
+                            {% if p.latestPriceCNY %}约 {{ p.latestPriceCNY|floatformat:"-2" }} RMB
                             {% endif %}</div>
                     </a>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="col-sm-6 col-md-4">
-                <span>媒体评分</span>
-                <div class="list-group">
-                    {% for c in score %}
-                        <a href="{% url "magazine.review" pk=c.id %}?theme=weui" class="list-group-item" target="_blank">
-                            {% if c.score > 0 %}
-                                <span class="badge">{{ c.score }} {{ c.scoreWord }}</span>
-                            {% endif %}
-                            <h4 class="list-group-item-heading">{{ c.subject }}</h4>
-                            <p class="list-group-item-text">
-                                {% if c.comment_trans|length > 0 %}{{ c.comment_trans|truncatechars:100 }}{% else %}
-                                    {{ c.comment|truncatechars:100 }}{% endif %}</p>
-                        </a>
-                    {% endfor %}
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
+
+    <script>
+        var swiper = new Swiper('.swiper-container', {
+            slidesPerView: 1,
+            spaceBetween: 30,
+            loop: true,
+            preloadImages: false,
+            lazy: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            autoplay: {
+                delay: 3000,
+            },
+        });
+
+    </script>
 {% endblock %}
