@@ -13,7 +13,6 @@ from .util import *
 active = "comment"
 theme = "weui"
 
-
 # 媒体评分
 def magazine(request):
     # request数据
@@ -75,7 +74,7 @@ def magazine(request):
         page_range = range(1, 6+1)
     if current_page_data.number > 3:
         page_range = range(current_page_data.number - 3, current_page_data.number + 3)
-
+    print(logo)
     render_data = {
         "active": active,
         "list": current_page_data.object_list,
@@ -83,6 +82,7 @@ def magazine(request):
         "page_range": page_range,
         "current_page": current_page_data,
         "magzines": mag_obj.getMagzineNames(),
+        "logo": logo,
     }
     # print(render_data["list"])
     # return HttpResponse("ooo")
@@ -104,7 +104,8 @@ def review(request, pk):
             "active": active,
             "review": review,
             "game": game,
-            "breadcrumb": breadcrumb(current_action, gameId=review.gameId)
+            "breadcrumb": breadcrumb(current_action, gameId=review.gameId),
+            "logo": logo,
         }
 
         if theme == "weui":
