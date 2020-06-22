@@ -2,87 +2,99 @@
 {% load static %}
 {% load myfilter %}
 {% block mainbody %}
+<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title">游戏列表</h1>
+        <p class="page__desc"></p>
+    </div>
 
-    <div class="page">
-        <div class="page__hd">
-            <h1 class="page__title">游戏列表</h1>
-            <p class="page__desc"></p>
+    <!-- 搜索栏 -->
+    <div class="page__bd">
+        <div class="weui-search-bar" id="searchBar">
+            <form class="weui-search-bar__form">
+                <div class="weui-search-bar__box">
+                    <i class="weui-icon-search"></i>
+                    <input type="search" class="weui-search-bar__input" id="searchInput" placeholder="输入名字来搜索" required/>
+                    <a href="javascript:" class="weui-icon-clear" id="searchClear"></a>
+                </div>
+                <label class="weui-search-bar__label" id="searchText">
+                    <i class="weui-icon-search"></i>
+                    <span>搜索</span>
+                </label>
+            </form>
+            <a href="javascript:" class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
         </div>
-        <div class="page__bd page__bd_spacing">
-            {% for sublist in page_obj.object_list %}
-                <div class="weui-flex">
-                    {% for item in sublist %}
-                        <div class="weui-flex__item">
-                            <article class="weui-article">
-                                <h1>
-                                    <a href="{% url 'detail' game_id=item.gameId %}">{{ item.titleCh }}</a>
-                                </h1>
-                                <section>
-                                    <div class="weui-cells">
-                                        <div class="weui-cell  weui-cell_example">
-                                            <div class="weui-cell__hd">{% for console in item.platform|split:',' %}
-                                                <img src="{% static icons|get_item:console %}"
-                                                         alt="{{ console }}" class="console-icons">
-                                            {% endfor %}
-                                            </div>
-                                            <div class="weui-cell__bd">
-                                                <p>{% ifequal item.hasChinese 1 %}有中文{% else %}无中文{% endifequal %}</p>
-                                            </div>
-                                            <div class="weui-cell__ft"></div>
-                                        </div>
-                                    </div>
-                                    <p>
-                                        <a href="{% url 'detail' game_id=item.gameId %}">
-                                            <img src="{{ item.cover|first|show_pic:"cover,list_icon_w400" }}" alt="">
-                                        </a>
-                                    </p>
-                                    <div class="weui-cells__title">
-                                        {{ item.intro|striptags|truncatechars:100 }}
-                                    </div>
-                                </section>
-                            </article>
-                        </div>
+        <div class="weui-cells searchbar-result" id="searchResult">
+            <div class="weui-cell weui-cell_active weui-cell_access">
+                <div class="weui-cell__bd weui-cell_primary search-item">
+                    <span class="search-item-cover">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAuCAMAAABgZ9sFAAAAVFBMVEXx8fHMzMzr6+vn5+fv7+/t7e3d3d2+vr7W1tbHx8eysrKdnZ3p6enk5OTR0dG7u7u3t7ejo6PY2Njh4eHf39/T09PExMSvr6+goKCqqqqnp6e4uLgcLY/OAAAAnklEQVRIx+3RSRLDIAxE0QYhAbGZPNu5/z0zrXHiqiz5W72FqhqtVuuXAl3iOV7iPV/iSsAqZa9BS7YOmMXnNNX4TWGxRMn3R6SxRNgy0bzXOW8EBO8SAClsPdB3psqlvG+Lw7ONXg/pTld52BjgSSkA3PV2OOemjIDcZQWgVvONw60q7sIpR38EnHPSMDQ4MjDjLPozhAkGrVbr/z0ANjAF4AcbXmYAAAAASUVORK5CYII=" alt="" ></span>
+                    <span class="search-item-subject">实时搜索文本</span>
+                </div>
+            </div>
+            <div class="weui-cell weui-cell_active weui-cell_access">
+                <div class="weui-cell__bd weui-cell_primary search-item">
+                    <span class="search-item-cover">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAuCAMAAABgZ9sFAAAAVFBMVEXx8fHMzMzr6+vn5+fv7+/t7e3d3d2+vr7W1tbHx8eysrKdnZ3p6enk5OTR0dG7u7u3t7ejo6PY2Njh4eHf39/T09PExMSvr6+goKCqqqqnp6e4uLgcLY/OAAAAnklEQVRIx+3RSRLDIAxE0QYhAbGZPNu5/z0zrXHiqiz5W72FqhqtVuuXAl3iOV7iPV/iSsAqZa9BS7YOmMXnNNX4TWGxRMn3R6SxRNgy0bzXOW8EBO8SAClsPdB3psqlvG+Lw7ONXg/pTld52BjgSSkA3PV2OOemjIDcZQWgVvONw60q7sIpR38EnHPSMDQ4MjDjLPozhAkGrVbr/z0ANjAF4AcbXmYAAAAASUVORK5CYII=" alt="" ></span>
+                    <span class="search-item-subject">实时搜索文本</span>
+                </div>
+            </div>
+            <div class="weui-cell weui-cell_active weui-cell_access">
+                <div class="weui-cell__bd weui-cell_primary search-item">
+                    <span class="search-item-cover">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAuCAMAAABgZ9sFAAAAVFBMVEXx8fHMzMzr6+vn5+fv7+/t7e3d3d2+vr7W1tbHx8eysrKdnZ3p6enk5OTR0dG7u7u3t7ejo6PY2Njh4eHf39/T09PExMSvr6+goKCqqqqnp6e4uLgcLY/OAAAAnklEQVRIx+3RSRLDIAxE0QYhAbGZPNu5/z0zrXHiqiz5W72FqhqtVuuXAl3iOV7iPV/iSsAqZa9BS7YOmMXnNNX4TWGxRMn3R6SxRNgy0bzXOW8EBO8SAClsPdB3psqlvG+Lw7ONXg/pTld52BjgSSkA3PV2OOemjIDcZQWgVvONw60q7sIpR38EnHPSMDQ4MjDjLPozhAkGrVbr/z0ANjAF4AcbXmYAAAAASUVORK5CYII=" alt="" ></span>
+                    <span class="search-item-subject">实时搜索文本</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 游戏列表 -->
+    <div class="page__bd">
+        <div class="weui-cells__title"></div>
+        <div class="weui-cells">
+            {% for item in page_obj.object_list %}
+            <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url 'detail' game_id=item.gameId %}">
+                <div class="weui-cell__hd">
+                    <img src="{{ item.cover|first|show_pic:"cover,list_icon_w400" }}" alt="" style="width: 160px; margin-right: 16px; display: block;">
+                </div>
+                <div class="weui-cell__bd">
+                    <p>{{ item.titleCh }}</p>
+                    <p style="font-size: 13px; color: #888;">{% ifequal item.hasChinese 1 %}有中文{% else %}无中文{% endifequal %}</p>
+                </div>
+                <div class="weui-cell__ft">
+                    {% for console in item.platform|split:',' %}
+                        <img src="{% static icons|get_item:console %}" alt="{{ console }}" class="console-icons">
                     {% endfor %}
                 </div>
+            </a>
             {% endfor %}
         </div>
-
-        <!-- 分页 -->
-        <nav aria-label="Page navigation" style="text-align: center">
-            <ul class="pagination">
-                {% if page_obj.has_previous %}
-                    <li>
-                        <a href="{% url "list.page" platform=platform page=1 %}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% for p in page_obj.paginator.page_range %}
-                    <li {% if p == page_obj.number %}class="active"{% endif %}>
-                        <a href="{% url "list.page" platform=platform page=p %}">{{ p }}</a></li>
-                {% endfor %}
-                {% if page_obj.has_next %}
-                    <li>
-                        <a href="{% url "list.page" platform=platform page=page_obj.next_page_number %}"
-                           aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
     </div>
+
+    <!-- 分页 -->
+    <nav aria-label="Page navigation" style="text-align: center">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li>
+                    <a href="{% url "list.page" platform=platform page=1 %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% for p in page_obj.paginator.page_range %}
+                <li {% if p == page_obj.number %}class="active"{% endif %}>
+                    <a href="{% url "list.page" platform=platform page=p %}">{{ p }}</a></li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li>
+                    <a href="{% url "list.page" platform=platform page=page_obj.next_page_number %}"
+                       aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+<script type="text/javascript" src="{% static "js/home/search.js" %}"></script>
 {% endblock %}
-<script type="text/template" id="footerTmpl">
-    <div class="page__ft">
-        <a href="javascript:home()"><img src="{% static "weui/images/icon_footer_link.png" %}"/></a>
-    </div>
-</script>
-
-
-<script src="{% static "weui/zepto.min.js" %}"></script>
-<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
-<script src="{% static "weui/weui.min.js" %}"></script>
-
-</body>
-</html>

@@ -1,16 +1,18 @@
+import time
+
 from django.contrib import admin
 
 # Register your models here.
-import json
-
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
-from GameModel.models import Shelf, Subjects, MagzineScores
+from GameModel.models import Shelf, Subjects, MagzineScores, Platforms
 from gfweb import translate
 import numpy
 from django.contrib import admin
 from . import util
+import json
+import logging
 
 # 面包屑导航
 from link.models import Link
@@ -18,6 +20,13 @@ from link.models import Link
 breadcrumb = {
     "游戏列表": "myadmin.game.list",
 }
+
+# 图标列表
+icons = {
+    "ps4": "image/ps4.png",
+    "switch": "image/switch.png"
+}
+logger = logging.getLogger("gfweb.debug")
 
 
 @admin.register(Link)
@@ -46,7 +55,8 @@ class LinkAdmin(admin.ModelAdmin):
 
         render_data = {
             "pagitor": current_page,
-            "breadcrumb": breadcrumb
+            "breadcrumb": breadcrumb,
+            "icons": icons
         }
         return render(request, "myadmin/list.html", render_data)
 
@@ -59,13 +69,12 @@ class LinkAdmin(admin.ModelAdmin):
             linked = []
             if "linked" in request.POST:
                 linked = request.POST.getlist("linked")
-            if "ps4-games" in request.POST:
-                ps4_ids = request.POST.getlist("ps4-games")
-            if "switch-games" in request.POST:
-                switch_ids = request.POST.getlist("switch-games")
-            gameIds = numpy.hstack((ps4_ids, switch_ids, linked))
-            # print(gameIds)
+            if "game_ids" in request.POST:
+                game_ids = request.POST.getlist("game_ids")
+
+            gameIds = numpy.hstack((game_ids, linked))
             games = Subjects.objects.filter(officialGameId__in=gameIds)
+
             shelf = Shelf()
             if "gameId" in request.POST and request.POST["gameId"] != "":
                 shelf.gameId = request.POST["gameId"]
@@ -127,8 +136,11 @@ class LinkAdmin(admin.ModelAdmin):
             shelf.platform = ",".join(set(platform))
 
             # 无中文介绍，翻译
+            logger.debug("未翻译，用时:%d" % int(time.process_time()))
+
             if "hk" not in intro:
                 intro["trans"] = translate.translate(list(intro.values())[0])
+                logger.debug("执行翻译后，用时:%d" % int(time.process_time()))
 
             shelf.intro = json.dumps(intro, ensure_ascii=False)
             if shelf.language.find("中文"):
@@ -140,36 +152,9 @@ class LinkAdmin(admin.ModelAdmin):
             for s in games:
                 s.onShelf = True
                 s.save()
+            logger.debug("已保存数据，用时:%d" % int(time.process_time()))
 
-            # 保存了之后，将图片上传到oss，并更新
-            # 上传到oss并获得路径
-            if shelf.gameId:
-                om = util.OssManager()
-
-                cover_bucket = 'cover'
-                oss_covers = []
-                for c in covers:
-                    try:
-                        oss_covers.append(om.upload(cover_bucket, c, shelf.gameId))
-                    except util.OssException as ex:
-                        print(ex)
-                    except Exception as ex:
-                        print(ex)
-
-                thumb_bucket = 'thumb'
-                oss_thumb = []
-                for t in thumb:
-                    try:
-                        oss_thumb.append(om.upload(thumb_bucket, t, shelf.gameId))
-                    except util.OssException as ex:
-                        print(ex)
-                    except Exception as ex:
-                        print(ex)
-
-                shelf.cover = json.dumps(oss_covers)
-                shelf.thumb = json.dumps(oss_thumb)
-                # print(shelf.cover)
-                shelf.save()
+            # v 1.1.0 将转存改为异步处理
 
             return HttpResponseRedirect("/admin/refer/list")
 
@@ -182,28 +167,14 @@ class LinkAdmin(admin.ModelAdmin):
                     print(shelf.officialGameIds, sub_list)
                     shelf.__setattr__("sub_list", sub_list)
 
-            ps4_hk_list = Subjects.objects.filter(platform="ps4", saleArea="hk", onShelf=False).order_by(
-                "officialGameId")
-            switch_jp_list = Subjects.objects.filter(platform="switch", saleArea="jp", onShelf=False).order_by(
-                "officialGameId")
-            switch_us_list = Subjects.objects.filter(platform="switch", saleArea="us", onShelf=False).order_by(
-                "subject")
-            switch_hk_list = Subjects.objects.filter(platform="switch", saleArea="hk", onShelf=False).order_by(
-                "officialGameId")
-            switch_za_list = Subjects.objects.filter(platform="switch", saleArea="za", onShelf=False).order_by(
-                "subject")
+            # 读取platforms信息。游戏列表从ajax接口读取
+            platforms = Platforms.objects.order_by("-platform").order_by("countryArea").all()
 
             # 面包屑
             breadcrumb["关联游戏"] = ""
 
             render_data = {
-                "ps4_list": {
-                    "香港": ps4_hk_list,
-                },
-                "switch_list": {
-                    "香港": switch_hk_list, "日本": switch_jp_list,
-                    "美国": switch_us_list, "南非": switch_za_list
-                },
+                "list": platforms,
                 "shelf": shelf,
                 "breadcrumb": breadcrumb
             }
@@ -250,27 +221,98 @@ class LinkAdmin(admin.ModelAdmin):
             shelf.score = sum(scores) / len(scores)
             shelf.save()
 
-        # 加载游戏评测
+        # 加载已关联的游戏评测
         mags = MagzineScores.objects.filter(gameId=game_id)
         if mags:
             shelf.__setattr__("mags", mags)
-        # 加载所有评测
-        # ign = MagzineScores.objects.filter(magazine="IGN", gameId=0).order_by("subject")
-        gamespot = MagzineScores.objects.filter(magazine='gamespot', gameId=0).order_by("subject")
-        metacritic = MagzineScores.objects.filter(magazine='metacritic', gameId=0).order_by("subject")
-        famitsu = MagzineScores.objects.filter(magazine='famitsu', gameId=0).order_by("subject")
+
+        # 加载评测媒体名
+        magazines = MagzineScores.MAG_CHOICE
 
         # 面包屑
         breadcrumb["关联评测"] = ""
 
         render_data = {
             "shelf": shelf,
-            "magzine": {
-                "gamespot": gamespot, "metacritics": metacritic, "famitsu": famitsu
-            },
+            "magazines": magazines,
             "breadcrumb": breadcrumb
         }
+
         return render(request, "myadmin/magzine.html", render_data)
+
+    # 删除关联数据
+    def unlink(request, game_id=0):
+        shelf = Shelf.objects.get(gameId=game_id)
+        if shelf is None:
+            return JsonResponse({"status": 0, "msg": "不存在的数据"})
+
+        shelf.delete()
+        return JsonResponse({"status": 1, "msg": "删除成功"})
+
+    # 图片转存OSS
+    def picture(request, game_id=0):
+        if game_id != 0:
+            # 保存了之后，将图片上传到oss，并更新
+            # 上传到oss并获得路径
+            game_obj = Shelf.objects.get(gameId=game_id)
+            if game_obj:
+                om = util.OssManager()
+
+                # 转存封图逻辑
+                # 先判断封图是否已转存
+                covers = json.loads(game_obj.cover.replace('\'', '\"'))
+                cover_bucket = 'cover'
+                if len(covers) > 0 and covers[0].startswith("http"):
+                    oss_covers = []
+                    for c in covers:
+                        # 通过域名判断是否已转存
+                        try:
+                            oss_covers.append(om.upload(cover_bucket, c, game_obj.gameId))
+                        except util.OssException as ex:
+                            print(ex)
+                        except Exception as ex:
+                            print(ex)
+                    game_obj.cover = json.dumps(oss_covers)
+
+                # 转存截图逻辑
+                # 先判断截图是否已转存
+                thumb = json.loads(game_obj.thumb.replace('\'', '\"'))
+                thumb_bucket = 'thumb'
+                if len(thumb) > 0 and thumb[0].startswith("http"):
+                    oss_thumb = []
+                    for t in thumb:
+                        try:
+                            oss_thumb.append(om.upload(thumb_bucket, t, game_obj.gameId))
+                        except util.OssException as ex:
+                            print(ex)
+                        except Exception as ex:
+                            print(ex)
+
+                    game_obj.thumb = json.dumps(oss_thumb)
+                # print(shelf.cover)
+                game_obj.save()
+
+                logger.debug("将图片保存至OSS，用时:%d" % int(time.process_time()))
+                return JsonResponse({"status": 1, "msg": "转存成功"})
+            else:
+                return JsonResponse({"status": 0, "msg": "不存在的游戏"})
+        else:
+            return JsonResponse({"status": 0, "msg": "非法请求"})
 
     def changelist_view(self, request, extra_context=None):
         return self.list(request)
+
+    # json格式游戏列表数据
+    def game_list(request):
+        platform = request.GET["platform"].lower()
+        saleArea = request.GET["saleArea"].lower()
+        subject_list = Subjects.objects.filter(platform=platform, saleArea=saleArea, onShelf=False) \
+            .order_by("officialGameId").values("officialGameId", "subject", "url")
+        return JsonResponse(list(subject_list), safe=False, json_dumps_params={'ensure_ascii': False})
+
+    # json格式评测数据
+    def review_list(request):
+        magazine = request.GET["magazine"].lower()
+        review_list = MagzineScores.objects.filter(gameId=0, magazine=magazine) \
+            .order_by("subject").values("id", "subject", "score", "url")
+        return JsonResponse(list(review_list), safe=False, json_dumps_params={'ensure_ascii': False})
