@@ -13,7 +13,6 @@ from .util import *
 active = "comment"
 theme = "weui"
 
-
 # 媒体评分
 def magazine(request):
     # request数据
@@ -26,14 +25,10 @@ def magazine(request):
     # 根据得分范围查找评分 @TODO
     score_low = get_data.setdefault("low", 1)
     score_high = get_data.setdefault("high", 10)
-    # 页面样式
-    theme = "bootstrap"
 
     # 获取数据
-    size = 20
-    total = MagzineScores.objects.count()
-    page_count = math.ceil(total / size)
-    filters = {}
+    size = 10
+    filters = {"gameId__gt": 0}
     if len(magzine_name):
         filters["magazine"] = magzine_name
     if len(game_name):
@@ -55,9 +50,8 @@ def magazine(request):
     except EmptyPage:
         current_page_data = paginator.page(paginator.num_pages)
 
-    if theme == "weui":
-        template = "weui/review/magazine.html"
-    else:
+    template = "weui/review/magazine.html"
+    if theme == "bootstrap":
         template = "bootstrap/comment/magazine.html"
 
     # 获取评测所属游戏
@@ -70,8 +64,8 @@ def magazine(request):
         else:
             item.__setattr__("shelf_cover", "/static/image/ns.png")
 
-    page_range = range(1, page_count+1)
-    if page_count > 6:
+    page_range = range(1, paginator.num_pages+1)
+    if paginator.num_pages > 6:
         page_range = range(1, 6+1)
     if current_page_data.number > 3:
         page_range = range(current_page_data.number - 3, current_page_data.number + 3)
@@ -79,13 +73,13 @@ def magazine(request):
     render_data = {
         "active": active,
         "list": current_page_data.object_list,
-        "page_count": page_count,
+        "page_count": paginator.num_pages,
         "page_range": page_range,
         "current_page": current_page_data,
         "magzines": mag_obj.getMagzineNames(),
+        "logo": logo,
     }
-    # print(render_data["list"])
-    # return HttpResponse("ooo")
+
     return render(request, template, render_data)
 
 
@@ -104,7 +98,8 @@ def review(request, pk):
             "active": active,
             "review": review,
             "game": game,
-            "breadcrumb": breadcrumb(current_action, gameId=review.gameId)
+            "breadcrumb": breadcrumb(current_action, gameId=review.gameId),
+            "logo": logo,
         }
 
         if theme == "weui":

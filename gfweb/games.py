@@ -11,18 +11,6 @@ from .util import *
 active = "games"
 theme = "weui"
 
-# 图标列表
-icons = {
-    "ps4": "image/ps4.png",
-    "switch": "image/switch.png",
-}
-logo = {
-    "Famitsu": "image/famitsu.png",
-    "metacritic": "image/metacritic.png",
-    "gamespot": "image/gamespot.png",
-}
-
-
 # 游戏列表页
 def list(request, platform="all", page=1):
     size = 20
@@ -98,7 +86,8 @@ def detail(request, game_id=0):
 
         info.__setattr__("price", price)
         info.cover = json.loads(json.dumps(eval(info.cover)))
-        info.thumb = json.loads(json.dumps(eval(info.thumb)))
+        # 截图最多展示8张（后台只转存最多8张）
+        info.thumb = json.loads(json.dumps(eval(info.thumb)))[:8]
         try:
             # 兼容非json格式
             intro = json.loads(json.dumps(eval(info.intro)))

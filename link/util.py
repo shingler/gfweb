@@ -66,6 +66,10 @@ class OssManager:
         bucket = oss2.Bucket(auth, self.end_point, bucket)
 
         dest = self.get_remote_key(shelf_id, src)
+        # 实体是否已创建
+        if self.is_exist(bucket_name, dest):
+            print("%s已存在" % dest)
+            return dest
 
         # 网络流上传
         input = requests.get(src)

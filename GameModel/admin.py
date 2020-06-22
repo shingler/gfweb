@@ -1,7 +1,6 @@
 from django.contrib import admin
 
 from GameModel.models import MagzineScores, Shelf, Subjects, Platforms
-from gfweb import myadmin
 
 
 class MagzineScoresAdmin(admin.ModelAdmin):

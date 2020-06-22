@@ -1,6 +1,16 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 
+# 图标列表
+icons = {
+    "ps4": "image/ps4.png",
+    "switch": "image/switch.png",
+}
+logo = {
+    "Famitsu": "image/famitsu.png",
+    "metacritic": "image/metacritic.png",
+    "gamespot": "image/gamespot.png",
+}
 
 # 按比例拆分列表
 def split_list(lst, n):
