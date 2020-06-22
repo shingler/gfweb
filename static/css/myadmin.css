@@ -18,6 +18,7 @@ a.add-link {
     float: right;
     position: relative;
     top: -60px;
+    text-decoration: none;
 }
 .myadmin-link-list li{
     min-height: 120px;
