@@ -45,6 +45,16 @@ class LinkAdmin(admin.ModelAdmin):
         for s in sub_list:
             # 兼容单引号json串。明明也是python生成的，竟然会出现单引号，奇怪
             s.cover = json.loads(json.dumps(eval(s.cover)), encoding="utf-8")
+            # 取第一张封图和第一张截图判断是否已转存oss
+            is_save_to_oss = True
+            if len(s.cover) > 0 and s.cover[0].startswith("http"):
+                is_save_to_oss = False
+
+            s.thumb = json.loads(json.dumps(eval(s.thumb)), encoding="utf-8")
+            if len(s.thumb) > 0 and s.thumb[0].startswith("http"):
+                is_save_to_oss = False
+            s.__setattr__("is_save_to_oss", is_save_to_oss)
+
         pagitor = Paginator(sub_list, size)
         try:
             current_page = pagitor.page(page)
@@ -258,13 +268,13 @@ class LinkAdmin(admin.ModelAdmin):
             if game_obj:
                 om = util.OssManager()
 
-                # 转存封图逻辑
+                # 转存封图逻辑（暂只转存第一张，反正也只显示一张而已）
                 # 先判断封图是否已转存
                 covers = json.loads(game_obj.cover.replace('\'', '\"'))
                 cover_bucket = 'cover'
                 if len(covers) > 0 and covers[0].startswith("http"):
                     oss_covers = []
-                    for c in covers:
+                    for c in covers[:1]:
                         # 通过域名判断是否已转存
                         try:
                             oss_covers.append(om.upload(cover_bucket, c, game_obj.gameId))
@@ -273,14 +283,15 @@ class LinkAdmin(admin.ModelAdmin):
                         except Exception as ex:
                             print(ex)
                     game_obj.cover = json.dumps(oss_covers)
+                    game_obj.save()
 
-                # 转存截图逻辑
+                # 转存截图逻辑（暂只转前8张，多了会导致504）
                 # 先判断截图是否已转存
                 thumb = json.loads(game_obj.thumb.replace('\'', '\"'))
                 thumb_bucket = 'thumb'
                 if len(thumb) > 0 and thumb[0].startswith("http"):
                     oss_thumb = []
-                    for t in thumb:
+                    for t in thumb[:8]:
                         try:
                             oss_thumb.append(om.upload(thumb_bucket, t, game_obj.gameId))
                         except util.OssException as ex:
@@ -289,10 +300,11 @@ class LinkAdmin(admin.ModelAdmin):
                             print(ex)
 
                     game_obj.thumb = json.dumps(oss_thumb)
-                # print(shelf.cover)
-                game_obj.save()
+                    game_obj.save()
 
-                logger.debug("将图片保存至OSS，用时:%d" % int(time.process_time()))
+                debug = "将图片保存至OSS，用时:%f" % time.process_time()
+                print(debug)
+                logger.debug(debug)
                 return JsonResponse({"status": 1, "msg": "转存成功"})
             else:
                 return JsonResponse({"status": 0, "msg": "不存在的游戏"})

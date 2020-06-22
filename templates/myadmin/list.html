@@ -44,7 +44,7 @@
                 {% else %}
                 <span class="game-has-chinese label label-danger glyphicon glyphicon-remove"> 无中文</span>
                 {% endifequal %}
-                {% ifequal game.cover|first|if_save_to_oss True %}
+                {% ifequal game.is_save_to_oss True %}
                 <span class="cover-has-save label label-success glyphicon glyphicon-ok"> 已转存</span>
                 {% else %}
                 <span class="cover-has-save label label-danger glyphicon glyphicon-remove"
@@ -57,7 +57,7 @@
                 </span>
                 <span class="btn-container right">
                     <a href="{% url "myadmin.game.link" %}?game_id={{ game.gameId }}"
-                       class="btn btn-default btn-sm glyphicon glyphicon-wrench">
+                       class="btn btn-default btn-sm glyphicon glyphicon-edit">
                         关联游戏数据</a>
 
                     <a href="{% url "myadmin.game.magzine" game_id=game.gameId %}"
@@ -65,7 +65,7 @@
                         关联媒体评测</a>
 
                     <button type="button" class="btn btn-info btn-sm glyphicon glyphicon-picture save-to-oss"
-                            data-loading-text="转存中..." data-complete-text="已完成" autocomplete="off"
+                            data-loading-text=" 转存中..." data-complete-text="已完成" autocomplete="off"
                             data-url="{% url "myadmin.game.link.picture" game_id=game.gameId %}">
                         图片转存
                     </button>
@@ -124,5 +124,5 @@
         </div>
     </div>
 
-<script type="text/javascript" src="{% static "js/link/search.js" %}"></script>
+<script type="text/javascript" src="{% static "js/link/list.js" %}"></script>
 {% endblock %}

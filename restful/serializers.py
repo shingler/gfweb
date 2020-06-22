@@ -109,7 +109,7 @@ class ShelfSerializer(serializers.HyperlinkedModelSerializer):
         thumb_list = json.loads(thumb_str, encoding="utf-8")
         res = []
         om = OssManager()
-        for item in thumb_list:
+        for item in thumb_list[:8]:
             if not item.startswith("http"):
                 res.append(om.get_url(item, "thumb", "mp_detail_pic_w414h240"))
         return res

@@ -7,7 +7,7 @@
 <div class="page">
     <div class="page__hd">
         <h1 class="page__title">游戏评测</h1>
-        <p class="page__desc">{{ review.magazine }}</p>
+        <p class="page__desc"><img src="{% static logo|get_item:review.magazine %}" style="height: 160px;"></p>
     </div>
     <div class="page__bd">
         <article class="weui-article">
@@ -15,6 +15,7 @@
             <section>
                 <h2 class="title">{{ review.subject }}</h2>
                 <section>
+                    <a href="{{ review.url }}" target="_blank">[ 传送门 ]</a><br/>
                     {% ifnotequal game None %}
                     <p>
                         <img src="{{ game.cover|show_pic:"cover,detail_pic_w500" }}" width="200px" alt="">
@@ -28,13 +29,12 @@
                     <div class="weui-cells__title">以上翻译来自：百度翻译API</div>
                 </section>
                 <section>
-                    <h3 class="show_origin">查看原文&nbsp;<span class="caret"></span></h3>
-                    <p id="origin1" class="show">
-                        {{ review.comment|truncatechars:300 }}
-                    </p>
-                    <p id="origin2" class="hidden">
-                        {{ review.comment|linebreaksbr }}
-                    </p>
+                    <a role="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        查看原文&nbsp;<span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="collapseExample">
+                        <div class="well">{{ review.comment|linebreaksbr }}</div>
+                    </div>
                 </section>
             </section>
         </article>
@@ -42,10 +42,6 @@
 </div>
 
 <script type="text/javascript">
-$(".show_origin").click(function(){
-    {#$(this).hide()#}
-    $("#origin1").removeClass("show").addClass("hidden")
-    $("#origin2").removeClass("hidden").addClass("show")
-})
+
 </script>
 {% endblock %}

@@ -15,7 +15,7 @@
     margin: 0 auto;
     padding: 5px 5px 5px 5px;
 }
-a:hover{
+a:hover,a:visited {
     text-decoration: none;
 }
 
@@ -42,8 +42,8 @@ a:hover{
 }
 .search-item-subject {
     float: left;
-    top: 35%;
-    position: absolute;
+    top: 35%;               /* 垂直居中 */
+    position: absolute;     /* 垂直居中 */
     margin-left: 15px;
 }
 /* 搜索结果 end */
