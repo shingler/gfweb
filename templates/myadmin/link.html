@@ -1,7 +1,7 @@
 {% extends "./base.html" %}
 {% load static %}
 {% block mainbody %}
-    <form action="{% url "game.link" %}" method="post">
+    <form action="{% url "myadmin.game.link" %}" method="post">
     <input type="hidden" name="gameId" value="{% ifnotequal shelf None %}{{ shelf.gameId }}{% endifnotequal %}">
         {% csrf_token %}
         <div class="row">
@@ -57,36 +57,26 @@
         </div>
         {% endifnotequal %}
 
-        <div class="row">
+        <div class="row" id="link-game-container">
             <div class="col-lg-12">
                 <div class="input-group">
                     <span class="input-group-addon">游戏关联</span>
+                    {% for platform in list %}
                     <div class="col-lg-4">
-                        <span>PS4</span>
-                        {% for label,area in ps4_list.items %}
-                            <span>{{ label }}</span>
-                            <ul class="list-group gamelist">
-                                {% for ps4 in area.values %}
-                                    <li class="list-group-item">
-                                        <input type="checkbox" name="ps4-games" value="{{ ps4.officialGameId }}">&nbsp;
-                                        <a href="{{ ps4.url }}" target="_blank"> {{ ps4.subject }} </a></li>
-                                {% endfor %}
-                            </ul>
-                        {% endfor %}
+                        <span>{{ platform.platform }}</span>
+                        <span>{{ platform.countryAreaName }}</span>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                <span class="sr-only">0% Complete</span>
+                            </div>
+                        </div>
+                        <ul class="list-group gamelist" data-platform="{{ platform.platform }}" data-saleArea="{{ platform.countryArea }}">
+                            <li class="list-group-item hidden">
+                                <input type="checkbox" name="game_ids" value="游戏官方ID">&nbsp;
+                                <a href="游戏在线商店链接" target="_blank"> 游戏标题 </a></li>
+                        </ul>
                     </div>
-                    <div class="col-lg-4">
-                        <span>switch</span>
-                        {% for label,area in switch_list.items %}
-                            <span>{{ label }}</span>
-                            <ul class="list-group gamelist">
-                                {% for ns in area.values %}
-                                    <li class="list-group-item">
-                                        <input type="checkbox" name="switch-games" value="{{ ns.officialGameId }}">&nbsp;
-                                        <a href="{{ ns.url }}" target="_blank"> {{ ns.subject }} </a></li>
-                                {% endfor %}
-                            </ul>
-                        {% endfor %}
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -118,4 +108,44 @@
             </div>
         </div>
     </form>
+
+<script type="text/javascript">
+// 读取游戏列表数据
+$(document).ready(function(){
+    var container = $("#link-game-container");
+    $(container).find("ul.gamelist").each(function(index, item){
+        // 参数
+        var p = $(item).attr("data-platform");
+        var sa = $(item).attr("data-saleArea");
+        // 进度条
+        var progressBar = $(item).parent().find("div.progress-bar");
+
+        var url = "/admin/refer/game_list?platform="+p+"&saleArea="+sa;
+        $.get(url, function(data, status){
+            var sample = $(item).children(0);
+            $(item).text("");
+            var total = data.length;
+            for (var i in data) {
+                var one = $(sample).clone();
+                $(one).find("input").val(data[i].officialGameId);
+                $(one).find("a").attr("href", data[i].url);
+                $(one).find("a").text(data[i].subject);
+                $(one).removeClass("hidden");
+                $(item).append($(one));
+                if (i % 10 == 0) {
+                    var percent = Math.round(i / total * 100);
+                    console.log(i, total, percent);
+                    progressBar.attr("aria-valuenow", percent);
+                    progressBar.css("width", percent+"%");
+                }
+            }
+            progressBar.attr("aria-valuenow", 100);
+            progressBar.css("width", "100%");
+            setTimeout(function(){
+                $(progressBar).parent().hide();
+            }, 1000);
+        });
+    });
+});
+</script>
 {% endblock %}

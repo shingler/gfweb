@@ -1,6 +1,7 @@
 import json
 
 from django.db import models
+import time
 
 
 class Games(models.Model):
@@ -201,7 +202,7 @@ class Subjects(models.Model):
 
 
 class MagzineScores(models.Model):
-    MAG_CHOICE = ["IGN", "gamespot", "metacritic", "Famitsu"]
+    MAG_CHOICE = ["gamespot", "metacritic", "Famitsu"]
     # 主键
     id = models.AutoField(primary_key=True, verbose_name="主键")
     # 游戏ID
@@ -253,3 +254,18 @@ class Currency(models.Model):
             return False
         data = Currency.objects.filter(currency=cur).first()
         return amount * data.rate, data.updated
+
+
+# 游戏平台区域，用于分类和爬虫设置
+class Platforms(models.Model):
+    id = models.IntegerField(primary_key=True, verbose_name="主键")
+    platform = models.CharField(max_length=100, default="", verbose_name="平台名")
+    countryArea = models.CharField(max_length=20, default="", verbose_name="国家区域", null=False)
+    countryAreaName = models.CharField(max_length=20, default="", verbose_name="国家区域名称", null=False)
+    url = models.TextField(default="", verbose_name="爬虫地址模板", null=False)
+    created = models.IntegerField(verbose_name="创建时间", default=int(time.time()))
+
+    class Meta:
+        db_table = "platforms"
+
+    # @staticmethod

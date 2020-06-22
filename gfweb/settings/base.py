@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     'link',
     'restful',
     'oss2',
+    # 'werkzeug_debugger_runserver',
+    # 'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -115,6 +117,11 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
         },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
+        }
     },
     'loggers': {
         'django.db.backends': {
@@ -122,6 +129,10 @@ LOGGING = {
             'propagate': True,
             'level': 'DEBUG',
         },
+        'gfweb.debug': {
+            'handler': ['file'],
+            'level': 'DEBUG',
+        }
     }
 }
 
@@ -130,3 +141,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser', 'rest_framework.parsers.FormParser']
 }
+
+# SSL
+#SECURE_SSL_REDIRECT = True

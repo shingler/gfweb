@@ -1,6 +1,50 @@
+.contaner {
+    width: 80%;
+}
 .gamelist {
     height: 350px;
     overflow: scroll;
+}
+p.list-group-item-text {
+    overflow-y: hidden;
+    max-height: 109px;
+}
+.row {
+    padding-bottom: 10px;
+}
+
+/* refer/list */
+a.add-link {
+    float: right;
+    position: relative;
+    top: -60px;
+}
+.myadmin-link-list li{
+    min-height: 120px;
+}
+
+.game-has-chinese,.cover-has-save {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.btn-container {
+    width: 300px;
+    height: 100px;
+    display: inline-flex;
+    flex-flow: row wrap;
+    align-content: flex-start;
+    padding: 10px;
+}
+.btn-container a,button {
+    box-sizing: border-box;
+    flex: 0 0 45%;
+    margin: 0px 10px 10px 0;
+}
+.right {
+    position: absolute;
+    right: 0px;
+    width: 300px;
+    padding: 10px;
 }
 
 /* 继承weui */
