@@ -292,7 +292,7 @@ class LinkAdmin(admin.ModelAdmin):
                 thumb_bucket = 'thumb'
                 if len(thumb) > 0 and thumb[0].startswith("http"):
                     oss_thumb = []
-                    for t in thumb[:8]:
+                    for t in thumb[:5]:
                         try:
                             oss_thumb.append(om.upload(thumb_bucket, t, game_obj.gameId))
                         except util.OssException as ex:
