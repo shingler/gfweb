@@ -6,7 +6,7 @@
         <p><strong>Warning!</strong> Better check yourself, you're not looking too good.</p>
     </div>
 
-    <h4 class="list-group-item-heading">游戏列表</h4>
+    <h4 class="list-group-item-heading">游戏关联列表</h4>
     <p>
         <!-- 分页 -->
         <nav aria-label="Page navigation">
@@ -62,7 +62,7 @@
 
                     <a href="{% url "myadmin.game.magzine" game_id=game.gameId %}"
                        class="btn btn-default btn-sm glyphicon glyphicon-list-alt">
-                        关联媒体评测</a>
+                        关联评测 ({{ game.review_count }})</a>
 
                     <button type="button" class="btn btn-info btn-sm glyphicon glyphicon-picture save-to-oss"
                             data-loading-text=" 转存中..." data-complete-text="已完成" autocomplete="off"

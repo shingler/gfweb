@@ -54,6 +54,9 @@ class LinkAdmin(admin.ModelAdmin):
             if len(s.thumb) > 0 and s.thumb[0].startswith("http"):
                 is_save_to_oss = False
             s.__setattr__("is_save_to_oss", is_save_to_oss)
+            # 读取已关联评测数量
+            review_count = MagzineScores.objects.filter(gameId=s.gameId).count()
+            s.__setattr__("review_count", review_count if review_count is not None else 0)
 
         pagitor = Paginator(sub_list, size)
         try:
@@ -74,8 +77,6 @@ class LinkAdmin(admin.ModelAdmin):
     def link(request):
         # 添加或修改
         if request.method == 'POST':
-            ps4_ids = []
-            switch_ids = []
             linked = []
             if "linked" in request.POST:
                 linked = request.POST.getlist("linked")
