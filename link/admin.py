@@ -78,6 +78,7 @@ class LinkAdmin(admin.ModelAdmin):
         # 添加或修改
         if request.method == 'POST':
             linked = []
+            game_ids = []
             if "linked" in request.POST:
                 linked = request.POST.getlist("linked")
             if "game_ids" in request.POST:
