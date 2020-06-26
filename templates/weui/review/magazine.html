@@ -15,7 +15,7 @@
             {% for review in list %}
             <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url "magazine.review" review.id %}?theme=weui" target="_blank">
                 <div class="weui-cell__hd" style="position: relative; margin-right: 10px;">
-                    <img src="{{ review.shelf_cover }}" alt="" style="width: 50px; display: block;">
+                    <img src="{{ review.shelf_cover|show_pic:"cover,detail_pic_w500" }}" alt="" style="width: 50px; display: block;">
                     <span class="weui-badge" style="position: absolute; top: -0.4em; right: -0.4em;">{{ review.score }}</span>
                 </div>
                 <div class="weui-cell__bd">
