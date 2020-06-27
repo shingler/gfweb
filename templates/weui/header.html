@@ -6,7 +6,7 @@
                     <a href="{% url "list" "all"%}?theme=weui">游戏列表</a>
                 </div>
                 <div class="weui-navbar__item {% ifequal active "comment" %}weui-bar__item_on{% endifequal %}">
-                    <a href="{% url "magazine.list" %}?theme=weui">评测列表</a>
+                    <a href="{% url "magazine.home" %}?theme=weui">评测列表</a>
                 </div>
                 <div class="weui-navbar__item {% ifequal active "search" %}weui-bar__item_on{% endifequal %}">
                     <a href="{% url "search" %}?theme=weui">搜索</a>

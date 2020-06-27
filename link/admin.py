@@ -256,7 +256,10 @@ class LinkAdmin(admin.ModelAdmin):
         if shelf is None:
             return JsonResponse({"status": 0, "msg": "不存在的数据"})
 
-        shelf.delete()
+        # shelf.delete()
+        # 改成软删除，设置show=0
+        shelf.show = False
+        shelf.save()
         return JsonResponse({"status": 1, "msg": "删除成功"})
 
     # 图片转存OSS

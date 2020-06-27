@@ -224,7 +224,7 @@ class MagzineScores(models.Model):
     # 被翻译的评价
     comment_trans = models.TextField(default="", verbose_name="被翻译的评价")
 
-    # shelf = models.OneToOneField(Shelf, on_delete=models.CASCADE)
+    # shelf = models.OneToOneField(Shelf, to_field="gameId", on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'magzine_scores'
@@ -254,6 +254,20 @@ class Currency(models.Model):
             return False
         data = Currency.objects.filter(currency=cur).first()
         return amount * data.rate, data.updated
+
+
+# 评分媒体，用于分类和爬虫设置
+class Magazines(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="主键")
+    title = models.CharField(max_length=100, verbose_name="媒体名")
+    domain = models.CharField(max_length=100, verbose_name="网站域名")
+    list_url_template = models.CharField(max_length=200, verbose_name="列表页地址模板")
+    platform = models.CharField(max_length=100, verbose_name="抓取的游戏平台")
+    enable = models.BooleanField(default=True, verbose_name="是否启用")
+    created = models.IntegerField(verbose_name="创建时间", default=int(time.time()))
+
+    class Meta:
+        db_table = "magazines"
 
 
 # 游戏平台区域，用于分类和爬虫设置

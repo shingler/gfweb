@@ -57,10 +57,9 @@ urlpatterns = [
     re_path(r'^games/list/(?P<platform>\w*)/(?P<page>\d?)/$', games.list, name="list.page"),
     path('games/info/<game_id>/', games.detail, name="detail"),
 
-    # 媒体评测列表
-    path('comment/magazine/', comment.magazine, name="magazine.list"),
-
-    # 游戏评测
+    # 媒体评测
+    path('comment/', comment.home, name="magazine.home"),
+    path('comment/magazine/<magazine>', comment.magazine, name="magazine.list"),
     url(r'^comment/magazine/(?P<pk>[0-9]+)/$', comment.review, name="magazine.review"),
     # path('comment/magazine/<int:c_id>/', comment.magazine, name="magazine.review"),
 

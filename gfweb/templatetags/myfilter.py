@@ -18,18 +18,21 @@ def split(str, sep=','):
 # 访问字典
 @register.filter
 def get_item(d, key):
-    return d[key]
+    return d.get(key)
 
 # 自动加oss域名并兼容外站链接
 @register.filter(name="show_pic")
 def show_pic(url, param=''):
+    # print(url)
+    if url is None:
+        return "/static/image/loading.gif"
     if url.startswith('http') or len(param) == 0:
         # 外站图片直接展示
         return url
     else:
         # 阿里云oss图片，可以进一步处理
         params = param.split(',')
-        print(params)
+        # print(params)
         om = util.OssManager()
         if len(params) > 1:
             return om.get_url(url, params[0], params[1])

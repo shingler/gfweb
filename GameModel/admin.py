@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from GameModel.models import MagzineScores, Shelf, Subjects, Platforms
+from GameModel import models
 
 
 class MagzineScoresAdmin(admin.ModelAdmin):
@@ -21,7 +21,13 @@ class PlatformsAdmin(admin.ModelAdmin):
     fields = ('platform', 'countryArea', 'countryAreaName', 'url')
 
 
-admin.site.register(MagzineScores, MagzineScoresAdmin)
-admin.site.register(Subjects, SubjectsAdmin)
-admin.site.register(Shelf, ShelfAdmin)
-admin.site.register(Platforms, PlatformsAdmin)
+class MagazinesAdmin(admin.ModelAdmin):
+    list_display = ('title', 'domain', 'platform', 'enable')
+    fields = ('title', 'domain', 'list_url_template', 'platform', 'enable')
+
+
+admin.site.register(models.MagzineScores, MagzineScoresAdmin)
+admin.site.register(models.Subjects, SubjectsAdmin)
+admin.site.register(models.Shelf, ShelfAdmin)
+admin.site.register(models.Platforms, PlatformsAdmin)
+admin.site.register(models.Magazines, MagazinesAdmin)
