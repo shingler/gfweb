@@ -4,92 +4,6 @@ from django.db import models
 import time
 
 
-class Games(models.Model):
-    # 游戏ID
-    gameId = models.AutoField(primary_key=True)
-    # 游戏中文名
-    titleCh = models.CharField(max_length=100)
-    # 游戏英文名
-    titleEn = models.CharField(max_length=100)
-    # 游戏日文名
-    titleJp = models.CharField(max_length=100)
-    # 官方游戏ID
-    officialGameId = models.CharField(max_length=50)
-    # 原价
-    price = models.FloatField(default=0.0)
-    # 介绍
-    intro = models.TextField()
-    # 封图URL
-    cover = models.CharField(max_length=200)
-    # 宣传视频URL
-    video = models.CharField(max_length=200)
-    # 评分
-    score = models.FloatField(default=0.0)
-    # 发布日期
-    published = models.IntegerField(default=0)
-    # 语言
-    language = models.CharField(max_length=100)
-    # 是否有中文
-    hasChinese = models.BooleanField(default=False)
-    # 系列ID
-    serialId = models.IntegerField(default=0)
-    # 关键词
-    keyword = models.CharField(max_length=100)
-    # 游玩人数
-    players = models.CharField(max_length=8)
-    # 游戏平台
-    platform = models.CharField(max_length=50)
-    # 是否有联机
-    online = models.BooleanField(default=False)
-    # 游戏分级
-    rate = models.CharField(max_length=200)
-    # 是否显示
-    show = models.BooleanField(default=True)
-
-    class Meta:
-        db_table = 'games'
-
-
-class Prices(models.Model):
-    # 主键
-    id = models.AutoField(primary_key=True)
-    # 游戏ID
-    gameId = models.IntegerField(default=0)
-    # 平台
-    platform = models.CharField(max_length=100)
-    # 语言版本
-    edition = models.CharField(max_length=100)
-    # 原价
-    price = models.FloatField(default=0.0)
-    # 货币名
-    currency = models.CharField(max_length=20)
-    # 销售区域
-    saleArea = models.CharField(max_length=20)
-    # 跳转地址
-    url = models.CharField(max_length=200)
-    # 当前价
-    latestPrice = models.FloatField(default=0.0)
-    # 会员价格
-    plusPrice = models.FloatField(default=0.0)
-    # 当前价截止日期
-    latestExpire = models.IntegerField(default=0)
-    # 会员价截止日期
-    plusExpire = models.IntegerField(default=0)
-    # 是否有中文
-    hasChinese = models.BooleanField(default=False)
-    # 历史最低价
-    historyPrice = models.FloatField(default=0.0)
-    # 历史最低价日期
-    hisDate = models.CharField(max_length=50)
-    # 数据保存时间
-    created = models.IntegerField(default=0)
-    # 数据修改时间
-    updated = models.IntegerField(default=0)
-
-    class Meta:
-        db_table = 'prices'
-
-
 class Shelf(models.Model):
     # 游戏ID
     gameId = models.AutoField(primary_key=True, verbose_name="游戏ID")
@@ -116,7 +30,7 @@ class Shelf(models.Model):
     # 有无中文
     hasChinese = models.BooleanField(default=False, verbose_name="有无中文")
     # 系列ID
-    serialId = models.IntegerField(default=0, verbose_name="系列ID")
+    serial_id = models.IntegerField(default=0, verbose_name="系列ID")
     # 关键词
     keyword = models.CharField(max_length=100, default="", verbose_name="关键词")
     # 游玩人数
@@ -283,3 +197,13 @@ class Platforms(models.Model):
         db_table = "platforms"
 
     # @staticmethod
+
+
+# 游戏系列表，用于游戏分类和相关推荐
+class Serial(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="主键")
+    title = models.CharField(max_length=200, verbose_name="系列名称")
+    # shelf = models.ForeignKey(Shelf, to_field="gameId", on_delete=models.SET_DEFAULT, default="")
+
+    class Meta:
+        db_table = "serial"

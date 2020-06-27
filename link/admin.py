@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
-from GameModel.models import Shelf, Subjects, MagzineScores, Platforms
+from GameModel.models import Shelf, Subjects, MagzineScores, Platforms, Serial
 from gfweb import translate
 import numpy
 from django.contrib import admin
@@ -74,8 +74,7 @@ class LinkAdmin(admin.ModelAdmin):
     def link(request):
         # 添加或修改
         if request.method == 'POST':
-            ps4_ids = []
-            switch_ids = []
+            game_ids = []
             linked = []
             if "linked" in request.POST:
                 linked = request.POST.getlist("linked")
@@ -88,6 +87,7 @@ class LinkAdmin(admin.ModelAdmin):
             shelf = Shelf()
             if "gameId" in request.POST and request.POST["gameId"] != "":
                 shelf.gameId = request.POST["gameId"]
+                shelf = Shelf.objects.get(gameId=request.POST["gameId"])
 
             shelf.officialGameIds = ",".join(gameIds)
             shelf.show = request.POST["show"]
@@ -140,10 +140,16 @@ class LinkAdmin(admin.ModelAdmin):
                 if kw.strip() == "" or kw == ":":
                     keyword_list.remove(kw)
             shelf.keyword += " ".join(keyword_list)
-            shelf.cover = json.dumps(covers)
-            shelf.thumb = json.dumps(thumb)
-            shelf.video = json.dumps(video)
+            # 封图存在就不用再次更新了
+            if shelf.cover is None or shelf.cover == "[]":
+                shelf.cover = json.dumps(covers)
+            if shelf.thumb is None or shelf.thumb == "[]":
+                shelf.thumb = json.dumps(thumb)
+            if shelf.video is None or shelf.video == "[]":
+                shelf.video = json.dumps(video)
             shelf.platform = ",".join(set(platform))
+            # 保存系列数据
+            shelf.serial_id = request.POST["serial_id"]
 
             # 无中文介绍，翻译
             logger.debug("未翻译，用时:%d" % int(time.process_time()))
@@ -180,12 +186,16 @@ class LinkAdmin(admin.ModelAdmin):
             # 读取platforms信息。游戏列表从ajax接口读取
             platforms = Platforms.objects.order_by("-platform").order_by("countryArea").all()
 
+            # 读取游戏系列信息
+            serial = Serial.objects.order_by("title").all()
+
             # 面包屑
             breadcrumb["关联游戏"] = ""
 
             render_data = {
                 "list": platforms,
                 "shelf": shelf,
+                "serial": serial,
                 "breadcrumb": breadcrumb
             }
 

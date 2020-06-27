@@ -26,8 +26,14 @@ class MagazinesAdmin(admin.ModelAdmin):
     fields = ('title', 'domain', 'list_url_template', 'platform', 'enable')
 
 
+class SerialAdmin(admin.ModelAdmin):
+    list_display = ('title',)
+    fields = ('title',)
+
+
 admin.site.register(models.MagzineScores, MagzineScoresAdmin)
 admin.site.register(models.Subjects, SubjectsAdmin)
 admin.site.register(models.Shelf, ShelfAdmin)
 admin.site.register(models.Platforms, PlatformsAdmin)
 admin.site.register(models.Magazines, MagazinesAdmin)
+admin.site.register(models.Serial, SerialAdmin)
