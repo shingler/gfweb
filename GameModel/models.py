@@ -4,6 +4,16 @@ from django.db import models
 import time
 
 
+# 游戏系列表，用于游戏分类和相关推荐
+class Serial(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="主键")
+    title = models.CharField(max_length=200, verbose_name="系列名称")
+    # shelf = models.ForeignKey(Shelf, to_field="gameId", on_delete=models.SET_DEFAULT, default="")
+
+    class Meta:
+        db_table = "serial"
+
+
 class Shelf(models.Model):
     # 游戏ID
     gameId = models.AutoField(primary_key=True, verbose_name="游戏ID")
@@ -30,7 +40,7 @@ class Shelf(models.Model):
     # 有无中文
     hasChinese = models.BooleanField(default=False, verbose_name="有无中文")
     # 系列ID
-    serial_id = models.IntegerField(default=0, verbose_name="系列ID")
+    serial = models.ForeignKey(to=Serial, default=0, verbose_name="系列ID", on_delete=models.SET_DEFAULT)
     # 关键词
     keyword = models.CharField(max_length=100, default="", verbose_name="关键词")
     # 游玩人数
@@ -198,12 +208,3 @@ class Platforms(models.Model):
 
     # @staticmethod
 
-
-# 游戏系列表，用于游戏分类和相关推荐
-class Serial(models.Model):
-    id = models.AutoField(primary_key=True, verbose_name="主键")
-    title = models.CharField(max_length=200, verbose_name="系列名称")
-    # shelf = models.ForeignKey(Shelf, to_field="gameId", on_delete=models.SET_DEFAULT, default="")
-
-    class Meta:
-        db_table = "serial"

@@ -37,7 +37,10 @@
     <ul class="list-group myadmin-link-list">
         {% for game in pagitor.object_list %}
             <li class="list-group-item" data-gid="{{ game.gameId }}">
-                <span class="col-md-3"><a href="{% url 'detail' game_id=game.gameId %}">{{ game.titleCh }}</a></span>
+                <span class="col-md-3">
+                    <a href="{% url 'detail' game_id=game.gameId %}">{{ game.titleCh }}</a>
+                    <br/><span class="label label-default">{{ game.serial.title }}</span>
+                </span>
                 <span class="game-cover"><img src="{{ game.cover|first|show_pic:"cover,list_icon_w200" }}" width="120"/></span>
                 {% ifequal game.hasChinese True %}
                 <span class="game-has-chinese label label-success glyphicon glyphicon-ok"> 有中文</span>
