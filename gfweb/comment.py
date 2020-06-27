@@ -68,7 +68,7 @@ def magazine(request, magazine=""):
 
     mag_obj = MagzineScores()
     # magzines = MagzineScores.objects.filter(**filters)[offset:size]
-    data_list = MagzineScores.objects.filter(**filters)
+    data_list = MagzineScores.objects.filter(**filters).order_by("-score")
     # 分页
     paginator = Paginator(data_list, size)
     try:
@@ -106,6 +106,7 @@ def magazine(request, magazine=""):
         "current_page": current_page_data,
         "magzines": mag_obj.getMagzineNames(),
         "logo": logo,
+        "magazine_title": magazine
     }
 
     return render(request, template, render_data)
@@ -123,7 +124,7 @@ def review(request, pk):
             # 如果数据库里没有关联或gameId查不到，跳转到原url吧。。。
             if game is None:
                 return HttpResponseRedirect(review.url)
-            
+
             game.cover = json.loads(game.cover.replace("\'", "\""))[0]
 
         render_data = {
