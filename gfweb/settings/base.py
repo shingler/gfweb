@@ -132,7 +132,12 @@ LOGGING = {
         'gfweb.debug': {
             'handler': ['file'],
             'level': 'DEBUG',
-        }
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
     }
 }
 

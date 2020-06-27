@@ -55,6 +55,9 @@ $(".save-to-oss").on("click", function (e) {
                 btn.button("complete");
                 $(btn).removeClass("glyphicon-hourglass");
                 $(btn).addClass("glyphicon-ok");
+                $(btn).removeClass("btn-info");
+                $(btn).removeClass("btn-danger");
+                $(btn).addClass("btn-success");
                 // 修改转存标签
                 var save_label = $(parent).find("span.cover-has-save");
                 $(save_label).removeClass("label-danger");
@@ -62,8 +65,30 @@ $(".save-to-oss").on("click", function (e) {
                 $(save_label).removeClass("glyphicon-remove");
                 $(save_label).addClass("glyphicon-ok");
                 $(save_label).text(" 已转存");
-
+            } else {
+                // 按钮状态恢复
+                btn.button("reset");
+                $(btn).removeClass("glyphicon-hourglass");
+                $(btn).addClass("glyphicon-refresh");
+                $(btn).removeClass("btn-info");
+                $(btn).addClass("btn-danger");
             }
+        },
+        fail: function (res) {
+            // 按钮状态恢复
+            btn.button("reset");
+            $(btn).removeClass("glyphicon-hourglass");
+            $(btn).addClass("glyphicon-refresh");
+            $(btn).removeClass("btn-info");
+            $(btn).addClass("btn-danger");
+        },
+        error: function (res) {
+            // 按钮状态恢复
+            btn.button("reset");
+            $(btn).removeClass("glyphicon-hourglass");
+            $(btn).addClass("glyphicon-refresh");
+            $(btn).removeClass("btn-info");
+            $(btn).addClass("btn-danger");
         }
     })
     // $btn.button("reset");

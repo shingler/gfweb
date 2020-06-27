@@ -54,6 +54,9 @@ class LinkAdmin(admin.ModelAdmin):
             if len(s.thumb) > 0 and s.thumb[0].startswith("http"):
                 is_save_to_oss = False
             s.__setattr__("is_save_to_oss", is_save_to_oss)
+            # 读取已关联评测数量
+            review_count = MagzineScores.objects.filter(gameId=s.gameId).count()
+            s.__setattr__("review_count", review_count if review_count is not None else 0)
 
         pagitor = Paginator(sub_list, size)
         try:
@@ -304,7 +307,7 @@ class LinkAdmin(admin.ModelAdmin):
                 thumb_bucket = 'thumb'
                 if len(thumb) > 0 and thumb[0].startswith("http"):
                     oss_thumb = []
-                    for t in thumb[:8]:
+                    for t in thumb[:5]:
                         try:
                             oss_thumb.append(om.upload(thumb_bucket, t, game_obj.gameId))
                         except util.OssException as ex:
