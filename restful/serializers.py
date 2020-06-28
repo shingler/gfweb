@@ -1,5 +1,6 @@
 import json
 
+from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.response import Response
 
@@ -57,11 +58,13 @@ class ShelfSerializer(serializers.HyperlinkedModelSerializer):
     mp_cover = serializers.SerializerMethodField()
     mp_cover_detail = serializers.SerializerMethodField()
     mp_thumb = serializers.SerializerMethodField()
+    related = serializers.SerializerMethodField()
 
     class Meta:
         model = Shelf
         fields = ("gameId", "titleCh", "hasChinese", "keyword", "cover", "mp_cover",
-                  "mp_cover_detail", "thumb", "mp_thumb", "subjects", "score", "intro")
+                  "mp_cover_detail", "thumb", "mp_thumb", "subjects", "score", "intro",
+                  "related")
 
     def get_subjects(self, obj):
         data = Subjects.objects.filter(officialGameId__in=obj.officialGameIds.split(','))
@@ -113,3 +116,20 @@ class ShelfSerializer(serializers.HyperlinkedModelSerializer):
             if not item.startswith("http"):
                 res.append(om.get_url(item, "thumb", "mp_detail_pic_w414h240"))
         return res
+
+    # 相关游戏
+    def get_related(self, obj):
+        list = []
+        if obj.serial_id != 0:
+            related = Shelf.objects.filter(serial__id=obj.serial_id).filter(~Q(gameId=obj.gameId)).order_by("titleCh")
+            for r in related:
+                list.append(RelatedSerializer(r).data)
+        return list
+
+
+# 相关游戏单独建一个迭代器，否则related会导致数据无限循环
+class RelatedSerializer(ShelfSerializer):
+    class Meta:
+        model = Shelf
+        fields = ("gameId", "titleCh", "hasChinese", "cover", "mp_cover",
+                  "mp_cover_detail", "score")

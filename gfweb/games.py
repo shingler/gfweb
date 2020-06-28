@@ -4,12 +4,14 @@ import json
 import time
 
 from django.shortcuts import render
+from django.db.models import Q
 from GameModel.models import Currency, MagzineScores, Shelf, Subjects
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .util import *
 
 active = "games"
 theme = "weui"
+
 
 # 游戏列表页
 def list(request, platform="all", page=1):
@@ -106,13 +108,19 @@ def detail(request, game_id=0):
     # 图片轮播（优先取截图，无截图用封图）
     # carousel = info.thumb if len(info.thumb) > 0 else info.cover
     carousel = info.thumb
+    # 根据系列ID查找相关游戏
+    related = []
+    if info.serial:
+        related = Shelf.objects.filter(serial__id=info.serial_id).filter(~Q(gameId=info.gameId)).order_by("titleCh")
+        for r in related:
+            # 处理封图
+            r.cover = json.loads(r.cover.replace('\'', '\"'), encoding="utf-8")
 
     render_data = {
         'info': info, 'score': score, 'active': active, 'logo': logo,
-        'rate_update': rate_update, 'carousel': carousel,
+        'rate_update': rate_update, 'carousel': carousel, 'related': related,
         'icons': icons, 'breadcrumb': breadcrumb(current_action, gameId=game_id)
     }
-    print(render_data["breadcrumb"])
 
     if theme == "bootstrap":
         template = "games/detail.html"

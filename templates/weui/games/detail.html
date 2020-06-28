@@ -11,7 +11,7 @@
             <h1 class="page__title">{{ info.titleCh }}<small>{{ info.titleJp }}</small></h1>
             <p class="page__desc"></p>
         </div>
-
+        <!-- 游戏信息 -->
         <div class="page__bd">
             <!-- 图片轮播 -->
             {% ifnotequal carousel|length 0 %}
@@ -36,14 +36,11 @@
             <article class="weui-article">
                 <h1>{{ info.titleCh }}</h1>
                 <section>
+                    {% if score|length > 0 %}
                     <h2 class="title">综合评分</h2>
-                    <section>
-                        <h3><span class="weui-badge" style="margin-left: 5px;">{{ info.score|floatformat:"-1" }}</span></h3>
-                        <p>
-                            {{ info.intro|safe }}
-                        </p>
-
-                    </section>
+                    <h3><span class="weui-badge" style="margin-left: 5px;">{{ info.score|floatformat:"-1" }}</span></h3>
+                    {% endif %}
+                    <p>{{ info.intro|safe }}</p>
                 </section>
             </article>
 
@@ -85,6 +82,27 @@
                             {% if p.latestPriceCNY %}约 {{ p.latestPriceCNY|floatformat:"-2" }} RMB
                             {% endif %}</div>
                     </a>
+                {% endfor %}
+            </div>
+
+            <!-- 相关游戏列表 -->
+            <div class="weui-cells__title">相关游戏</div>
+            <div class="weui-cells">
+                {% for item in related %}
+                <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url 'detail' game_id=item.gameId %}">
+                    <div class="weui-cell__hd">
+                        <img src="{{ item.cover|first|show_pic:"cover,list_icon_w400" }}" alt="" style="width: 160px; margin-right: 16px; display: block;">
+                    </div>
+                    <div class="weui-cell__bd">
+                        <p>{{ item.titleCh }}</p>
+                        <p style="font-size: 13px; color: #888;">{% ifequal item.hasChinese 1 %}有中文{% else %}无中文{% endifequal %}</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        {% for console in item.platform|split:',' %}
+                            <img src="{% static icons|get_item:console %}" alt="{{ console }}" class="console-icons">
+                        {% endfor %}
+                    </div>
+                </a>
                 {% endfor %}
             </div>
         </div>
