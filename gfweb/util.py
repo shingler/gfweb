@@ -10,6 +10,7 @@ logo = {
     "Famitsu": "image/famitsu.png",
     "metacritic": "image/metacritic.png",
     "gamespot": "image/gamespot.png",
+    "IGN": "image/ign.png",
 }
 
 # 按比例拆分列表
