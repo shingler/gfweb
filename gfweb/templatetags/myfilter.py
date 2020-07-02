@@ -18,7 +18,7 @@ def split(str, sep=','):
 # 访问字典
 @register.filter
 def get_item(d, key):
-    return d[key]
+    return d.get(key)
 
 # 自动加oss域名并兼容外站链接
 @register.filter(name="show_pic")
