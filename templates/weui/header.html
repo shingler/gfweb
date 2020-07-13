@@ -1,15 +1,51 @@
+{% load static %}
+{% load myfilter %}
 <div class="page">
+    <div class="page__hd">
+        <div class="page__title">
+            <span class="logo-panel">
+                <img class="logo" src="{% static "image/logo-180-trans.png" %}">
+                <h3>游方 - 主机游戏信息查询</h3>
+            </span>
+            {% if not request|is_login %}
+                <span class="login-panel">
+                <a href="{% url "sigin-alipay-authorize" %}?ref={{ request.build_absolute_uri|force_escape }}">
+                    <img src="{% static "image/alipay.png" %}" width="20px"/>支付宝登录
+                </a>
+            </span>
+            {% else %}
+                <span class="member-panel">
+                <div class="dropdown">
+                  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                          data-toggle="dropdown"
+                          aria-haspopup="true" aria-expanded="true">
+                    <img src="{{ request.user.userprofile.avatar }}" width="20px"/>{{ request.user.userprofile.nickname }}
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                    <li><a href="#">个人中心</a></li>
+                    <li><a href="#">我的收藏</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="{% url "sigin-logout" %}">退出登录</a></li>
+                  </ul>
+                </div>
+            </span>
+            {% endif %}
+        </div>
+
+    </div>
+
     <div class="page__bd" style="height: 100%;">
         <div class="weui-tab">
             <div class="weui-navbar">
                 <div class="weui-navbar__item {% ifequal active "games" %}weui-bar__item_on{% endifequal %}">
-                    <a href="{% url "list" "all"%}?theme=weui">游戏列表</a>
+                    <a href="{% url "list" "all" %}">游戏列表</a>
                 </div>
                 <div class="weui-navbar__item {% ifequal active "comment" %}weui-bar__item_on{% endifequal %}">
-                    <a href="{% url "magazine.home" %}?theme=weui">评测列表</a>
+                    <a href="{% url "magazine.home" %}">评测列表</a>
                 </div>
                 <div class="weui-navbar__item {% ifequal active "search" %}weui-bar__item_on{% endifequal %}">
-                    <a href="{% url "search" %}?theme=weui">搜索</a>
+                    <a href="{% url "search" %}">搜索</a>
                 </div>
             </div>
             <div class="weui-tab__panel">
@@ -19,7 +55,7 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(function(){
+    $(function () {
         $('.weui-navbar__item').on('click', function () {
             $(this).addClass('weui-bar__item_on').siblings('.weui-bar__item_on').removeClass('weui-bar__item_on');
         });

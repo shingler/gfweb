@@ -23,7 +23,7 @@ class OssManager:
             return ""
 
     def get_domain(self, bucket_name):
-        print(bucket_name)
+        # print(bucket_name)
         if bucket_name in OSS_BUCKETNAME:
             return OSS_BUCKETNAME[bucket_name]["domain"]
         else:

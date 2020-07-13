@@ -48,3 +48,9 @@ def get_csrf(request):
 @register.filter(name="if_save_to_oss")
 def if_save_to_oss(url):
     return not url.startswith("http")
+
+# 判断登录状态
+@register.filter(name="is_login")
+def is_login(request):
+    # print(request.user.userprofile.avatar)
+    return request.user.is_authenticated

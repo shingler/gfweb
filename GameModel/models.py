@@ -205,6 +205,3 @@ class Platforms(models.Model):
 
     class Meta:
         db_table = "platforms"
-
-    # @staticmethod
-

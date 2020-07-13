@@ -1,0 +1,26 @@
+{% extends "weui/base.html" %}
+{% block mainbody %}
+<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title"></h1>
+        <p class="page__desc"></p>
+    </div>
+    <div class="page__bd page__bd_spacing">
+        <div class="icon-box" style="text-align: center">
+            <i class="weui-icon-success weui-icon_msg"></i>
+            <div class="icon-box__ctn">
+                <h3 class="icon-box__title">登录成功</h3>
+                <p class="icon-box__desc">3秒后自动返回上次访问页面<br/>
+                    <a id="ref" href="{{ ref }}">手动点击这里返回</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+{# 三秒钟 自动返回 #}
+setTimeout(function(){
+    location.href = $("#ref").attr("href")
+}, 3000)
+</script>
+{% endblock %}
