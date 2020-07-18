@@ -1,0 +1,76 @@
+{% extends "weui/base.html" %}
+{% load static %}
+{% load myfilter %}
+{% block mainbody %}
+    <div class="page">
+        <div class="page__hd">
+            <h1 class="page__title">个人中心</h1>
+            <p class="page__desc">修改资料</p>
+        </div>
+        <div class="page__bd page__bd_spacing">
+            <div class="weui-panel weui-panel_access">
+                <div class="weui-panel__hd">修改用户名</div>
+                <div class="weui-media-box weui-media-box_text">
+                    <div class="weui-form__control-area">
+                        <div class="weui-cells__group weui-cells__group_form">
+                            <div class="weui-cells weui-cells_form">
+                                <div class="weui-cell weui-cell_active" id="js_cell">
+                                    <div class="weui-toptips weui-toptips_warn" id="topTips_username">错误提示</div>
+                                    <div class="weui-cell__hd">
+                                        <label class="weui-label" id="current_username">{{ profile.username }}</label>
+                                    </div>
+                                    <div class="weui-cell__bd weui-flex">
+                                        <input type="hidden" id="action-uri" value="{% url "change-username" %}"/>
+                                        {% csrf_token %}
+                                        <input id="js_input" class="weui-input" autofocus type="text"
+                                               pattern="[0-9]*" placeholder="请输入新的用户名" maxlength="16"/>
+                                        <button id="js_input_clear"
+                                                class="weui-btn_reset weui-btn_icon">
+                                            <i class="weui-icon-clear"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="weui-form__opr-area" style="margin-top: 10px;">
+                            <a class="weui-btn weui-btn_primary weui-btn_disabled" href="javascript:" id="showTooltips">确定</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="weui-panel weui-panel_access">
+                <div class="weui-panel__hd">修改头像</div>
+                <div class="weui-panel__bd">
+                    <div href="javascript:" class="weui-media-box weui-media-box_appmsg">
+                        <div class="weui-toptips weui-toptips_warn" id="topTips_avatar">错误提示</div>
+                        <div class="weui-media-box__hd">
+                            <img id="current_avatar" class="weui-media-box__thumb"
+                                 src="{{ profile.userprofile.avatar }}"
+                                 alt="">
+                        </div>
+                        <div class="weui-media-box__bd">
+                            <button id="selectfiles" href="javascript:void(0);" class='btn btn-primary'>选择文件</button>
+                            {% csrf_token %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="js_toast" style="display: none;">
+            <div class="weui-mask_transparent"></div>
+            <div class="weui-toast">
+                <i class="weui-icon-success-no-circle weui-icon_toast"></i>
+                <p class="weui-toast__content">已完成</p>
+            </div>
+        </div>
+    </div>
+    <script>
+    var oss_token = {{ oss_token|safe }}
+    var current_uid = {{ profile.id }}
+    </script>
+    <script type="text/javascript" src="{% static "js/profile/changeusername.js" %}"></script>
+    <script type="text/javascript" src="{% static "oss/lib/plupload-2.1.2/js/plupload.full.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/profile/changeavatar.js" %}"></script>
+{% endblock %}
