@@ -367,7 +367,7 @@ class LinkAdmin(admin.ModelAdmin):
         # 检查登录
         if not LinkAdmin.check_perm(request):
             return JsonResponse({"status": 0, "msg": "无权访问"})
-        
+
         magazine = request.GET["magazine"].lower()
         review_list = MagzineScores.objects.filter(gameId=0, magazine=magazine) \
             .order_by("subject").values("id", "subject", "score", "url")
