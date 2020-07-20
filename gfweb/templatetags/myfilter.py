@@ -69,3 +69,10 @@ def to_json(json_str):
         res = json_str
     # print(res)
     return res
+
+# 权限判断
+@register.filter(name="check_perm")
+def check_perm(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return True
+    return False
