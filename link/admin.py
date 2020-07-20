@@ -32,12 +32,16 @@ logger = logging.getLogger("gfweb.debug")
 @admin.register(Link)
 class LinkAdmin(admin.ModelAdmin):
 
+    def check_perm(request):
+        if request.user.is_authenticated and request.user.is_staff:
+            return True
+        return False
+
     # 游戏列表
     def list(request, page=1, *args, **kwargs):
         # 检查登录
-        print(request.user.username)
-        if not request.user:
-            return HttpResponseRedirect("/admin/", )
+        if not LinkAdmin.check_perm(request):
+            return HttpResponseRedirect("/", )
 
         size = 10
         sub_list = Shelf.objects.all().order_by("-gameId")
@@ -75,6 +79,10 @@ class LinkAdmin(admin.ModelAdmin):
 
     # 游戏信息关联
     def link(request):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return HttpResponseRedirect("/", )
+
         # 添加或修改
         if request.method == 'POST':
             game_ids = []
@@ -206,6 +214,10 @@ class LinkAdmin(admin.ModelAdmin):
 
     # 关联媒体评测
     def magzine(request, game_id=0):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return HttpResponseRedirect("/", )
+
         if game_id == 0:
             return HttpResponseRedirect("/admin/refer/list")
 
@@ -265,6 +277,10 @@ class LinkAdmin(admin.ModelAdmin):
 
     # 删除关联数据
     def unlink(request, game_id=0):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return JsonResponse({"status": 0, "msg": "无权访问"})
+
         shelf = Shelf.objects.get(gameId=game_id)
         if shelf is None:
             return JsonResponse({"status": 0, "msg": "不存在的数据"})
@@ -277,6 +293,10 @@ class LinkAdmin(admin.ModelAdmin):
 
     # 图片转存OSS
     def picture(request, game_id=0):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return JsonResponse({"status": 0, "msg": "无权访问"})
+
         if game_id != 0:
             # 保存了之后，将图片上传到oss，并更新
             # 上传到oss并获得路径
@@ -332,6 +352,10 @@ class LinkAdmin(admin.ModelAdmin):
 
     # json格式游戏列表数据
     def game_list(request):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return JsonResponse({"status": 0, "msg": "无权访问"})
+
         platform = request.GET["platform"].lower()
         saleArea = request.GET["saleArea"].lower()
         subject_list = Subjects.objects.filter(platform=platform, saleArea=saleArea, onShelf=False) \
@@ -340,6 +364,10 @@ class LinkAdmin(admin.ModelAdmin):
 
     # json格式评测数据
     def review_list(request):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return JsonResponse({"status": 0, "msg": "无权访问"})
+        
         magazine = request.GET["magazine"].lower()
         review_list = MagzineScores.objects.filter(gameId=0, magazine=magazine) \
             .order_by("subject").values("id", "subject", "score", "url")
