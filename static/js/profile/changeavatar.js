@@ -86,6 +86,7 @@ uploader.bind("FileUploaded", function (up, file, info) {
                 toast.fadeIn(100);
                 setTimeout(function () {
                     toast.fadeOut(100);
+                    location.reload();
                 }, 2000);
             },
             error: function (res) {

@@ -33,9 +33,8 @@ INSTALLED_APPS = [
     'restful',
     'oss2',
     'authApp',
-    #'alipay-sdk-python',
-    # 'werkzeug_debugger_runserver',
-    # 'django_extensions'
+    'ossManager',
+    'favorite',
 ]
 
 MIDDLEWARE = [

@@ -100,3 +100,11 @@ a:hover,a:visited {
   align-items: center;
 }
 /* swiper end */
+
+/* 收藏按钮 start */
+.favorite-btn {
+    float: right;
+    margin-right: 10px;
+    cursor: pointer;
+}
+/* 收藏按钮 end */

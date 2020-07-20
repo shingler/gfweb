@@ -2,131 +2,182 @@
 {% load static %}
 {% load myfilter %}
 {% block mainbody %}
-    <link rel="stylesheet" href="{% static "swiper/css/swiper.min.css" %}">
-    <script type="text/javascript" src="{% static "swiper/js/swiper.min.js" %}"></script>
-    {% include "breadcrumb.html" %}
+<link rel="stylesheet" href="{% static "swiper/css/swiper.min.css" %}">
+<script type="text/javascript" src="{% static "swiper/js/swiper.min.js" %}"></script>
+{% include "breadcrumb.html" %}
 
-    <div class="page">
-        <div class="page__hd">
-            <h1 class="page__title">{{ info.titleCh }}<small>{{ info.titleJp }}</small></h1>
-            <p class="page__desc"></p>
-        </div>
-        <!-- 游戏信息 -->
-        <div class="page__bd">
-            <!-- 图片轮播 -->
-            {% ifnotequal carousel|length 0 %}
-            <div class="swiper-container">
-                <div class="swiper-wrapper">
-                    {% for img in carousel %}
-                    <div class="swiper-slide">
-                        <img src="{{ img|show_pic:"thumb,detail_pic_w500" }}" class="swiper-lazy">
-                        <div class="swiper-lazy-preloader"></div>
-                    </div>
-                    {% endfor %}
+<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title">{{ info.titleCh }}<small>{{ info.titleJp }}</small></h1>
+        <p class="page__desc"></p>
+    </div>
+    <!-- 游戏信息 -->
+    <div class="page__bd">
+        <!-- 图片轮播 -->
+        {% ifnotequal carousel|length 0 %}
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                {% for img in carousel %}
+                <div class="swiper-slide">
+                    <img src="{{ img|show_pic:"thumb,detail_pic_w500" }}" class="swiper-lazy">
+                    <div class="swiper-lazy-preloader"></div>
                 </div>
-                <!-- Add Pagination -->
-                <div class="swiper-pagination"></div>
-                <!-- Add Arrows -->
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-            </div>
-            {% endifnotequal %}
-
-            <!-- 基本信息 -->
-            <article class="weui-article">
-                <h1>{{ info.titleCh }}</h1>
-                <section>
-                    {% if score|length > 0 %}
-                    <h2 class="title">综合评分</h2>
-                    <h3><span class="weui-badge" style="margin-left: 5px;">{{ info.score|floatformat:"-1" }}</span></h3>
-                    {% endif %}
-                    <p>{{ info.intro|safe }}</p>
-                </section>
-            </article>
-
-            <!-- 媒体评分 -->
-            <div class="weui-cells__title">媒体评分</div>
-            <div class="weui-cells">
-                {% for c in score %}
-                    <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url "magazine.review" c.id %}" target="_blank">
-                        <div class="weui-cell__hd" style="position: relative; margin-right: 10px;">
-                            <img src="{% static logo|get_item:c.magazine %}" style="width: 50px; display: block;"/>
-                        </div>
-                        <div class="weui-cell__bd">
-                            <p>{{ c.magazine }}</p>
-                            <p style="font-size: 13px; color: #888;">{{ c.subject }}</p>
-                        </div>
-                        <div class="weui-cell__ft">
-                            <span class="weui-badge" style="top: -0.4em; right: -0.4em;">{{ c.score }}</span>
-                        </div>
-                    </a>
                 {% endfor %}
             </div>
+            <!-- Add Pagination -->
+            <div class="swiper-pagination"></div>
+            <!-- Add Arrows -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+        {% endifnotequal %}
 
-            <!-- 价格一览 -->
-            <div class="weui-cells__title">价格一览 （汇率更新于 {{ rate_update }}）</div>
-            <div class="weui-cells">
-                {% for p in info.price %}
-                    <a class="weui-cell  weui-cell_access weui-cell_example" href="{{ p.url }}" target="_blank">
-                        <div class="weui-cell__hd">
-                            {% for console in p.platform|split:',' %}
-                                <img src="{% static icons|get_item:console %}" alt="{{ console }}"
-                                     style="width: 50px; margin-right: 16px; display: block;">
-                            {% endfor %}
-                        </div>
-                        <div class="weui-cell__bd">
-                            <p>{{ p.edition }}</p>
-                            <p style="font-size: 13px; color: #888; line-height: 0px;">{{ p.currency }} {{ p.latestPrice }}</p>
-                        </div>
-                        <div class="weui-cell__ft">
-                            {% if p.latestPriceCNY %}约 {{ p.latestPriceCNY|floatformat:"-2" }} RMB
-                            {% endif %}</div>
-                    </a>
-                {% endfor %}
-            </div>
+        <!-- 基本信息 -->
+        <article class="weui-article">
+            <h1>{{ info.titleCh }}
+                <span class="favorite-btn" data-state="{{ fav }}"
+                      data-shelf-id="{{ info.gameId }}">
+                    {% ifequal fav True %}
+                    <span class="glyphicon glyphicon-star"></span>
+                    {% else %}
+                    <span class="glyphicon glyphicon-star-empty"></span>
+                    {% endifequal %}
+                </span>
+            </h1>
+            <section>
+                {% if score|length > 0 %}
+                <h2 class="title">综合评分</h2>
+                <h3><span class="weui-badge" style="margin-left: 5px;">{{ info.score|floatformat:"-1" }}</span></h3>
+                {% endif %}
+                <p>{{ info.intro|safe }}</p>
+            </section>
+        </article>
 
-            <!-- 相关游戏列表 -->
-            <div class="weui-cells__title">相关游戏</div>
-            <div class="weui-cells">
-                {% for item in related %}
-                <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url 'detail' game_id=item.gameId %}">
-                    <div class="weui-cell__hd">
-                        <img src="{{ item.cover|first|show_pic:"cover,list_icon_w400" }}" alt="" style="width: 160px; margin-right: 16px; display: block;">
+        <!-- 媒体评分 -->
+        <div class="weui-cells__title">媒体评分</div>
+        <div class="weui-cells">
+            {% for c in score %}
+                <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url "magazine.review" c.id %}" target="_blank">
+                    <div class="weui-cell__hd" style="position: relative; margin-right: 10px;">
+                        <img src="{% static logo|get_item:c.magazine %}" style="width: 50px; display: block;"/>
                     </div>
                     <div class="weui-cell__bd">
-                        <p>{{ item.titleCh }}</p>
-                        <p style="font-size: 13px; color: #888;">{% ifequal item.hasChinese 1 %}有中文{% else %}无中文{% endifequal %}</p>
+                        <p>{{ c.magazine }}</p>
+                        <p style="font-size: 13px; color: #888;">{{ c.subject }}</p>
                     </div>
                     <div class="weui-cell__ft">
-                        {% for console in item.platform|split:',' %}
-                            <img src="{% static icons|get_item:console %}" alt="{{ console }}" class="console-icons">
-                        {% endfor %}
+                        <span class="weui-badge" style="top: -0.4em; right: -0.4em;">{{ c.score }}</span>
                     </div>
                 </a>
-                {% endfor %}
-            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 价格一览 -->
+        <div class="weui-cells__title">价格一览 （汇率更新于 {{ rate_update }}）</div>
+        <div class="weui-cells">
+            {% for p in info.price %}
+                <a class="weui-cell  weui-cell_access weui-cell_example" href="{{ p.url }}" target="_blank">
+                    <div class="weui-cell__hd">
+                        {% for console in p.platform|split:',' %}
+                            <img src="{% static icons|get_item:console %}" alt="{{ console }}"
+                                 style="width: 50px; margin-right: 16px; display: block;">
+                        {% endfor %}
+                    </div>
+                    <div class="weui-cell__bd">
+                        <p>{{ p.edition }}</p>
+                        <p style="font-size: 13px; color: #888; line-height: 0px;">{{ p.currency }} {{ p.latestPrice }}</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        {% if p.latestPriceCNY %}约 {{ p.latestPriceCNY|floatformat:"-2" }} RMB
+                        {% endif %}</div>
+                </a>
+            {% endfor %}
+        </div>
+
+        <!-- 相关游戏列表 -->
+        <div class="weui-cells__title">相关游戏</div>
+        <div class="weui-cells">
+            {% for item in related %}
+            <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url 'detail' game_id=item.gameId %}">
+                <div class="weui-cell__hd">
+                    <img src="{{ item.cover|first|show_pic:"cover,list_icon_w400" }}" alt="" style="width: 160px; margin-right: 16px; display: block;">
+                </div>
+                <div class="weui-cell__bd">
+                    <p>{{ item.titleCh }}</p>
+                    <p style="font-size: 13px; color: #888;">{% ifequal item.hasChinese 1 %}有中文{% else %}无中文{% endifequal %}</p>
+                </div>
+                <div class="weui-cell__ft">
+                    {% for console in item.platform|split:',' %}
+                        <img src="{% static icons|get_item:console %}" alt="{{ console }}" class="console-icons">
+                    {% endfor %}
+                </div>
+            </a>
+            {% endfor %}
         </div>
     </div>
+</div>
+{% include "weui/toast.html" %}
+<div class="weui-toptips weui-toptips_warn" id="topTips">错误提示</div>
+<script>
+// 图片轮播
+var swiper = new Swiper('.swiper-container', {
+    slidesPerView: 1,
+    spaceBetween: 30,
+    loop: true,
+    preloadImages: false,
+    lazy: true,
+    pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+    },
+    navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+    },
+    autoplay: {
+        delay: 3000,
+    },
+});
 
-    <script>
-        var swiper = new Swiper('.swiper-container', {
-            slidesPerView: 1,
-            spaceBetween: 30,
-            loop: true,
-            preloadImages: false,
-            lazy: true,
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-            autoplay: {
-                delay: 3000,
-            },
-        });
+// 添加收藏
+$(".favorite-btn span").click(function(){
+    let fav_sta = $(this).parent().attr("data-state");
+    let shelf_id = $(this).parent().attr("data-shelf-id");
+    let uri = "";
+    let icon = $(this);
+    if (eval(fav_sta) == 1) {
+        uri = "/fav/remove/" + shelf_id;
+    } else {
+        uri = "/fav/add/" + shelf_id;
+    }
+    $.get(uri, function (res) {
+        if (res.status === 1) {
+            icon.parent().attr("data-state", res.data.state)
+            // 成功提示
+            let toast = $("#js_toast");
+            toast.fadeIn(100);
+            setTimeout(function () {
+                toast.fadeOut(100);
+            }, 2000);
+            if (res.data.state === 0) {
+                icon.removeClass("glyphicon-star-empty");
+                icon.addClass("glyphicon-star");
+            } else {
+                icon.removeClass("glyphicon-star");
+                icon.addClass("glyphicon-star-empty");
+            }
 
-    </script>
+        } else {
+            var tips = $('#topTips');
+            tips.text(res.msg);
+            tips.fadeIn(100);
+            setTimeout(function () {
+                tips.fadeOut(100);
+            }, 2000);
+        }
+    });
+});
+
+</script>
+<script type="text/javascript" src="{% static "js/home/favorite.js" %}"></script>
 {% endblock %}

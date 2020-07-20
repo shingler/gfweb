@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 # 修改个人资料
 from django.contrib.auth import login
-from oss.manager import OssTokenManager
+from ossManager.manager import OssTokenManager
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http.response import JsonResponse

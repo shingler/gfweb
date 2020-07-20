@@ -21,7 +21,8 @@ class UserProfile(models.Model):
 class Connect(models.Model):
     platform = (("wx", "微信"), ("alipay", "支付宝"))
     id = models.AutoField(primary_key=True, verbose_name="自增主键")
-    user = models.ForeignKey(UserProfile, to_field="user_id", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="用户id")
+    user = models.ForeignKey(UserProfile, to_field="user_id", on_delete=models.SET_NULL, null=True, blank=True,
+                             verbose_name="用户id")
     oauth_platform = models.CharField(max_length=10, choices=platform, verbose_name="第三方平台")
     oauth_platform_user_id = models.CharField(max_length=100, verbose_name="第三方平台唯一ID")
     oauth_key = models.CharField(max_length=128, verbose_name="第三方key")
@@ -34,5 +35,6 @@ class Connect(models.Model):
 
     class Meta:
         db_table = "connect"
+        index_together = ["oauth_platform", "oauth_platform_user_id"]
 
 

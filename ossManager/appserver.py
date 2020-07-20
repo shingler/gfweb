@@ -9,8 +9,8 @@ import json
 import hmac
 from hashlib import sha1 as sha
 
-from oss import httpserver
-from oss import config
+from ossManager import httpserver
+from ossManager import config
 
 # 请填写您的AccessKeyId。
 access_key_id = config.OSS_ACCESS_KEY_ID
@@ -97,7 +97,7 @@ def do_POST(server):
     pub_key_url = ''
 
     try:
-        pub_key_url_base64 = server.headers['x-oss-pub-key-url']
+        pub_key_url_base64 = server.headers['x-ossManager-pub-key-url']
         pub_key = httpserver.get_pub_key(pub_key_url_base64)
     except Exception as e:
         print(str(e))

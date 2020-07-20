@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
+import json
+
 from django import template
 from django.middleware import csrf
-from link import util
+from ossManager import manager
 register = template.Library()
 
 # 获取循环范围
@@ -23,7 +25,7 @@ def get_item(d, key):
 # 自动加oss域名并兼容外站链接
 @register.filter(name="show_pic")
 def show_pic(url, param=''):
-    # print(url)
+    # print(url, type(url))
     if url is None:
         return "/static/image/loading.gif"
     if url.startswith('http') or len(param) == 0:
@@ -33,7 +35,7 @@ def show_pic(url, param=''):
         # 阿里云oss图片，可以进一步处理
         params = param.split(',')
         # print(params)
-        om = util.OssManager()
+        om = manager.OssManager()
         if len(params) > 1:
             return om.get_url(url, params[0], params[1])
         else:
@@ -54,3 +56,16 @@ def if_save_to_oss(url):
 def is_login(request):
     # print(request.user.userprofile.avatar)
     return request.user.is_authenticated
+
+# 将可序列化的字符转存json
+@register.filter(name="to_json")
+def to_json(json_str):
+    # 单双引号兼容
+    json_str = json_str.replace('\'', '\"')
+    try:
+        res = json.loads(json_str, encoding="utf-8")
+    except Exception as err:
+        print(err)
+        res = json_str
+    # print(res)
+    return res

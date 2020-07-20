@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 
 from GameModel.models import MagzineScores, Shelf, Subjects, Currency
-from link.util import OssManager
+from ossManager.manager import OssManager
 
 import json
 

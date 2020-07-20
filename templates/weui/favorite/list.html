@@ -1,0 +1,37 @@
+{% extends "weui/base.html" %}
+{% load static %}
+{% load myfilter %}
+{% block mainbody %}
+<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title">我的收藏</h1>
+        <p class="page__desc"></p>
+    </div>
+
+    <!-- 游戏列表 -->
+    <div class="page__bd">
+        <div class="weui-cells__title"></div>
+        <div class="weui-cells">
+            {% for item in current_page.object_list %}
+            <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url 'detail' game_id=item.shelf_id %}">
+                <div class="weui-cell__hd">
+                    <img src="{{ item.shelf.cover|to_json|first|show_pic:"cover,list_icon_w400" }}" alt="" style="width: 160px; margin-right: 16px; display: block;">
+                </div>
+                <div class="weui-cell__bd">
+                    <p>{{ item.shelf.titleCh }}</p>
+                    <p style="font-size: 13px; color: #888;">{% ifequal item.shelf.hasChinese 1 %}有中文{% else %}无中文{% endifequal %}</p>
+                </div>
+                <div class="weui-cell__ft">
+                    {% for console in item.shelf.platform|split:',' %}
+                        <img src="{% static icons|get_item:console %}" alt="{{ console }}" class="console-icons">
+                    {% endfor %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 分页 -->
+    {% include "pager.html" %}
+</div>
+{% endblock %}

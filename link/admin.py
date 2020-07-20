@@ -10,7 +10,7 @@ from GameModel.models import Shelf, Subjects, MagzineScores, Platforms, Serial
 from gfweb import translate
 import numpy
 from django.contrib import admin
-from . import util
+from ossManager import manager
 import json
 import logging
 
@@ -282,7 +282,7 @@ class LinkAdmin(admin.ModelAdmin):
             # 上传到oss并获得路径
             game_obj = Shelf.objects.get(gameId=game_id)
             if game_obj:
-                om = util.OssManager()
+                om = manager.OssManager()
 
                 # 转存封图逻辑（暂只转存第一张，反正也只显示一张而已）
                 # 先判断封图是否已转存
@@ -294,7 +294,7 @@ class LinkAdmin(admin.ModelAdmin):
                         # 通过域名判断是否已转存
                         try:
                             oss_covers.append(om.upload(cover_bucket, c, game_obj.gameId))
-                        except util.OssException as ex:
+                        except manager.OssException as ex:
                             print(ex)
                         except Exception as ex:
                             print(ex)
@@ -310,7 +310,7 @@ class LinkAdmin(admin.ModelAdmin):
                     for t in thumb[:5]:
                         try:
                             oss_thumb.append(om.upload(thumb_bucket, t, game_obj.gameId))
-                        except util.OssException as ex:
+                        except manager.OssException as ex:
                             print(ex)
                         except Exception as ex:
                             print(ex)

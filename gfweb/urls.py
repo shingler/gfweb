@@ -19,8 +19,8 @@ from django.conf.urls import re_path, url
 
 import authApp.urls
 import link.urls
+import favorite.urls
 from gfweb import games, comment
-# from link import admin as myadmin
 from restful import views
 from rpc4django.views import serve_rpc_request
 from rest_framework import routers
@@ -46,7 +46,7 @@ urlpatterns = [
 
     # 前端展示页面
     re_path(r'^games/list/(?P<platform>\w*)/$', games.list, name="list"),
-    re_path(r'^games/list/(?P<platform>\w*)/(?P<page>\d?)/$', games.list, name="list.page"),
+    # re_path(r'^games/list/(?P<platform>\w*)/(?P<page>\d?)/$', games.list, name="list.page"),
     path('games/info/<game_id>/', games.detail, name="detail"),
 
     # 媒体评测
@@ -72,5 +72,8 @@ urlpatterns = [
 
     # 登录认证模块
     path('auth/', include(authApp.urls)),
+
+    # 收藏模块
+    path('fav/', include(favorite.urls)),
 ]
 

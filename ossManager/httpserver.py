@@ -5,7 +5,7 @@ from Crypto.Signature import PKCS1_v1_5
 from Crypto.Hash import MD5
 from Crypto.PublicKey import RSA
 
-from oss import appserver
+from ossManager import appserver
 
 
 def verrify(auth_str, authorization_base64, pub_key):

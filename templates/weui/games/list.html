@@ -52,10 +52,10 @@
     <div class="page__bd">
         <div class="weui-cells__title"></div>
         <div class="weui-cells">
-            {% for item in page_obj.object_list %}
+            {% for item in current_page.object_list %}
             <a class="weui-cell  weui-cell_access weui-cell_example" href="{% url 'detail' game_id=item.gameId %}">
                 <div class="weui-cell__hd">
-                    <img src="{{ item.cover|first|show_pic:"cover,list_icon_w400" }}" alt="" style="width: 160px; margin-right: 16px; display: block;">
+                    <img src="{{ item.cover|to_json|first|show_pic:"cover,list_icon_w400" }}" alt="" style="width: 160px; margin-right: 16px; display: block;">
                 </div>
                 <div class="weui-cell__bd">
                     <p>{{ item.titleCh }}</p>
@@ -72,6 +72,7 @@
     </div>
 
     <!-- 分页 -->
+{% include "pager.html" %}
     <nav aria-label="Page navigation" style="text-align: center">
         <ul class="pagination">
             {% if page_obj.has_previous %}

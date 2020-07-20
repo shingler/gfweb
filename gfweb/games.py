@@ -7,6 +7,8 @@ from django.shortcuts import render
 from django.db.models import Q
 from GameModel.models import Currency, MagzineScores, Shelf, Subjects
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+from favorite.models import Favorite
 from .util import *
 
 active = "games"
@@ -14,9 +16,10 @@ theme = "weui"
 
 
 # 游戏列表页
-def list(request, platform="all", page=1):
+def list(request, platform="all"):
     size = 20
     kw = False
+    page = request.GET.get("page", 1)
 
     # 关键词搜索
     if "kw" in request.GET and request.GET["kw"] != "":
@@ -29,7 +32,7 @@ def list(request, platform="all", page=1):
 
     for s in list:
         # 兼容单引号json串。明明也是python生成的，竟然会出现单引号，奇怪
-        s.cover = json.loads(json.dumps(eval(s.cover)), encoding="utf-8")
+        s.cover = json.dumps(eval(s.cover))
         try:
             intro = json.loads(json.dumps(eval(s.intro)), encoding="utf-8")
             if "hk" in intro:
@@ -51,6 +54,12 @@ def list(request, platform="all", page=1):
     except EmptyPage:
         current_page_data = p.page(p.num_pages)
 
+    page_range = range(1, p.num_pages + 1)
+    if p.num_pages > 6:
+        page_range = range(1, 6 + 1)
+    if current_page_data.number > 3:
+        page_range = range(current_page_data.number - 3, current_page_data.number + 3)
+
     template_path = "weui/games/list.html"
 
     if theme == "bootstrap":
@@ -60,7 +69,8 @@ def list(request, platform="all", page=1):
         template_path = "bootstrap/games/list.html"
 
     render_data = {
-        'page_obj': current_page_data,
+        'current_page': current_page_data,
+        "page_range": page_range,
         'platform': platform,
         'active': active,
         'kw': kw,
@@ -110,16 +120,23 @@ def detail(request, game_id=0):
     carousel = info.thumb
     # 根据系列ID查找相关游戏
     related = []
-    if info.serial:
+    if info.serial_id:
         related = Shelf.objects.filter(serial__id=info.serial_id).filter(~Q(gameId=info.gameId)).order_by("titleCh")
         for r in related:
             # 处理封图
             r.cover = json.loads(r.cover.replace('\'', '\"'), encoding="utf-8")
+    # 是否已收藏
+    fav = False
+    if request.user.is_authenticated:
+        fav_data = Favorite.objects.filter(user_id=request.user.id, shelf_id=info.gameId).first()
+        if fav_data:
+            fav = int(fav_data.state)
 
     render_data = {
         'info': info, 'score': score, 'active': active, 'logo': logo,
         'rate_update': rate_update, 'carousel': carousel, 'related': related,
-        'icons': icons, 'breadcrumb': breadcrumb(current_action, gameId=game_id)
+        'icons': icons, 'breadcrumb': breadcrumb(current_action, gameId=game_id),
+        "fav": fav,
     }
 
     if theme == "bootstrap":
