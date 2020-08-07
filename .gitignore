@@ -16,3 +16,5 @@ cert/
 */migrations
 */__pycache__
 gfweb.log
+ossManager/config.py
+authApp/config.py
