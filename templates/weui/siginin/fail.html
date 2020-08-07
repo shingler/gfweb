@@ -1,0 +1,20 @@
+{% extends "weui/base.html" %}
+{% block mainbody %}
+<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title"></h1>
+        <p class="page__desc"></p>
+    </div>
+    <div class="page__bd page__bd_spacing">
+        <div class="icon-box" style="text-align: center">
+            <i class="weui-icon-warn weui-icon_msg"></i>
+            <div class="icon-box__ctn">
+                <h3 class="icon-box__title">登录失败</h3>
+                <p class="icon-box__desc">{{ msg }}<br/>
+                    <a href="{{ ref }}">手动点击这里返回</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

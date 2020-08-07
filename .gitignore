@@ -6,7 +6,6 @@ gfweb/settings/__pycache__
 gfweb/templatetags/__pycache__
 link/__pycache__
 link/migrations/__pycache__
-link/config.py
 mysql_back
 restful/__pycache__
 .idea
@@ -14,4 +13,8 @@ master.pid
 gfweb.log
 test.py
 cert/
+*/migrations
+*/__pycache__
 gfweb.log
+ossManager/config.py
+authApp/config.py

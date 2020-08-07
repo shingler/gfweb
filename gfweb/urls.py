@@ -17,8 +17,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import re_path, url
 
+import authApp.urls
+import link.urls
+import favorite.urls
 from gfweb import games, comment
-from link import admin as myadmin
 from restful import views
 from rpc4django.views import serve_rpc_request
 from rest_framework import routers
@@ -39,41 +41,39 @@ urlpatterns = [
     # django 默认的管理地址
     path('admin/', admin.site.urls),
 
-    # 游戏关联页面
-    path('admin/refer/list', myadmin.LinkAdmin.list, name="myadmin.game.list"),
-    path('admin/refer/list/<int:page>', myadmin.LinkAdmin.list, name="myadmin.game.list"),
-    path('admin/refer/link/', myadmin.LinkAdmin.link, name="myadmin.game.link"),
-    path('admin/refer/magzine/<game_id>/', myadmin.LinkAdmin.magzine, name="myadmin.game.magzine"),
-    path('admin/refer/game_list', myadmin.LinkAdmin.game_list, name="myadmin.game.list.ajax"),
-    path('admin/refer/review_list', myadmin.LinkAdmin.review_list, name="myadmin.review.list.ajax"),
-    path('admin/refer/list/unlink/<game_id>', myadmin.LinkAdmin.unlink, name="myadmin.game.link.unlink"),
-    path('admin/refer/link/picture/<game_id>', myadmin.LinkAdmin.picture, name="myadmin.game.link.picture"),
-
     # 首页
     path('', games.list, name="list"),
 
     # 前端展示页面
     re_path(r'^games/list/(?P<platform>\w*)/$', games.list, name="list"),
-    re_path(r'^games/list/(?P<platform>\w*)/(?P<page>\d?)/$', games.list, name="list.page"),
+    # re_path(r'^games/list/(?P<platform>\w*)/(?P<page>\d?)/$', games.list, name="list.page"),
     path('games/info/<game_id>/', games.detail, name="detail"),
 
-    # 媒体评测列表
-    path('comment/magazine/', comment.magazine, name="magazine.list"),
-
-    # 游戏评测
+    # 媒体评测
+    path('comment/', comment.home, name="magazine.home"),
+    path('comment/magazine/<magazine>', comment.magazine, name="magazine.list"),
     url(r'^comment/magazine/(?P<pk>[0-9]+)/$', comment.review, name="magazine.review"),
-    # path('comment/magazine/<int:c_id>/', comment.magazine, name="magazine.review"),
 
     # 搜索页
     path('games/search', games.search, name="search"),
 
     # rpc4django will need to be in your Python path
     url(r'^RPC2$', serve_rpc_request),
-    # restful
+
+    # restful接口
     url(r'^api/subject/(?P<officialGameId>[0-9a-zA-Z\-_]+)$', views.SubjectsViewSet.retrieve, name="subject-list"),
     url(r'^api/magzine/game/list$', views.MagzineViewSet.list, name="magzine-list"),
     url(r'^api/', include(router.urls)),
     # schema
     url(r'^schema/$', schema_view),
+
+    # 游戏关联模块
+    path('admin/refer/', include(link.urls)),
+
+    # 登录认证模块
+    path('auth/', include(authApp.urls)),
+
+    # 收藏模块
+    path('fav/', include(favorite.urls)),
 ]
 

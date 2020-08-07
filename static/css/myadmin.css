@@ -187,3 +187,34 @@ a.add-link {
     background-color: #ececec;
     background-color: var(--weui-BG-COLOR-ACTIVE);
 }
+
+/* 顶部logo及登录状态 start */
+.logo-panel h3 {
+    display: inline;
+}
+.logo {
+    width: 60px;
+    margin-bottom: 18px;
+}
+/* 登录面板 */
+.login-panel {
+    display: inline-block;
+    margin-right: 10px;
+    float: right;
+    margin-top: 28px;
+}
+.login-panel > a {
+    color: #000000;
+}
+/* 会员面板 */
+.member-panel {
+    display: inline-block;
+    margin-right: 10px;
+    float: right;
+    margin-top: 28px;
+}
+/* 顶部logo及登录状态 end */
+
+a:hover,visited {
+    text-decoration: none;
+}

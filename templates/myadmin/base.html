@@ -11,8 +11,8 @@
 <body>
 <script type="text/javascript" src="{% static "js/jquery-1.12.4.min.js" %}"></script>
 <script type="text/javascript" src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
-{% include "weui/header.html" %}
 <div class="container">
+    {% include "myadmin/header.html" %}
     <ol class="breadcrumb">
         {% for label,url in breadcrumb.items %}
         {% if url == "" %}<li class="active">{{label}}</li>

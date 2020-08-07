@@ -44,3 +44,5 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser', 'rest_framework.parsers.FormParser']
 }
+
+CONNECT_ALIPAY = "production"

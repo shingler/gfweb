@@ -6,11 +6,11 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
-from GameModel.models import Shelf, Subjects, MagzineScores, Platforms
+from GameModel.models import Shelf, Subjects, MagzineScores, Platforms, Serial
 from gfweb import translate
 import numpy
 from django.contrib import admin
-from . import util
+from ossManager import manager
 import json
 import logging
 
@@ -32,12 +32,16 @@ logger = logging.getLogger("gfweb.debug")
 @admin.register(Link)
 class LinkAdmin(admin.ModelAdmin):
 
+    def check_perm(request):
+        if request.user.is_authenticated and request.user.is_staff:
+            return True
+        return False
+
     # 游戏列表
     def list(request, page=1, *args, **kwargs):
         # 检查登录
-        print(request.user.username)
-        if not request.user:
-            return HttpResponseRedirect("/admin/", )
+        if not LinkAdmin.check_perm(request):
+            return HttpResponseRedirect("/", )
 
         size = 10
         sub_list = Shelf.objects.all().order_by("-gameId")
@@ -75,10 +79,14 @@ class LinkAdmin(admin.ModelAdmin):
 
     # 游戏信息关联
     def link(request):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return HttpResponseRedirect("/", )
+
         # 添加或修改
         if request.method == 'POST':
-            linked = []
             game_ids = []
+            linked = []
             if "linked" in request.POST:
                 linked = request.POST.getlist("linked")
             if "game_ids" in request.POST:
@@ -90,6 +98,7 @@ class LinkAdmin(admin.ModelAdmin):
             shelf = Shelf()
             if "gameId" in request.POST and request.POST["gameId"] != "":
                 shelf.gameId = request.POST["gameId"]
+                shelf = Shelf.objects.get(gameId=request.POST["gameId"])
 
             shelf.officialGameIds = ",".join(gameIds)
             shelf.show = request.POST["show"]
@@ -142,10 +151,16 @@ class LinkAdmin(admin.ModelAdmin):
                 if kw.strip() == "" or kw == ":":
                     keyword_list.remove(kw)
             shelf.keyword += " ".join(keyword_list)
-            shelf.cover = json.dumps(covers)
-            shelf.thumb = json.dumps(thumb)
-            shelf.video = json.dumps(video)
+            # 封图存在就不用再次更新了
+            if shelf.cover is None or shelf.cover == "[]":
+                shelf.cover = json.dumps(covers)
+            if shelf.thumb is None or shelf.thumb == "[]":
+                shelf.thumb = json.dumps(thumb)
+            if shelf.video is None or shelf.video == "[]":
+                shelf.video = json.dumps(video)
             shelf.platform = ",".join(set(platform))
+            # 保存系列数据
+            shelf.serial_id = request.POST["serial_id"]
 
             # 无中文介绍，翻译
             logger.debug("未翻译，用时:%d" % int(time.process_time()))
@@ -182,12 +197,16 @@ class LinkAdmin(admin.ModelAdmin):
             # 读取platforms信息。游戏列表从ajax接口读取
             platforms = Platforms.objects.order_by("-platform").order_by("countryArea").all()
 
+            # 读取游戏系列信息
+            serial = Serial.objects.order_by("title").all()
+
             # 面包屑
             breadcrumb["关联游戏"] = ""
 
             render_data = {
                 "list": platforms,
                 "shelf": shelf,
+                "serial": serial,
                 "breadcrumb": breadcrumb
             }
 
@@ -195,6 +214,10 @@ class LinkAdmin(admin.ModelAdmin):
 
     # 关联媒体评测
     def magzine(request, game_id=0):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return HttpResponseRedirect("/", )
+
         if game_id == 0:
             return HttpResponseRedirect("/admin/refer/list")
 
@@ -254,21 +277,32 @@ class LinkAdmin(admin.ModelAdmin):
 
     # 删除关联数据
     def unlink(request, game_id=0):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return JsonResponse({"status": 0, "msg": "无权访问"})
+
         shelf = Shelf.objects.get(gameId=game_id)
         if shelf is None:
             return JsonResponse({"status": 0, "msg": "不存在的数据"})
 
-        shelf.delete()
+        # shelf.delete()
+        # 改成软删除，设置show=0
+        shelf.show = False
+        shelf.save()
         return JsonResponse({"status": 1, "msg": "删除成功"})
 
     # 图片转存OSS
     def picture(request, game_id=0):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return JsonResponse({"status": 0, "msg": "无权访问"})
+
         if game_id != 0:
             # 保存了之后，将图片上传到oss，并更新
             # 上传到oss并获得路径
             game_obj = Shelf.objects.get(gameId=game_id)
             if game_obj:
-                om = util.OssManager()
+                om = manager.OssManager()
 
                 # 转存封图逻辑（暂只转存第一张，反正也只显示一张而已）
                 # 先判断封图是否已转存
@@ -280,7 +314,7 @@ class LinkAdmin(admin.ModelAdmin):
                         # 通过域名判断是否已转存
                         try:
                             oss_covers.append(om.upload(cover_bucket, c, game_obj.gameId))
-                        except util.OssException as ex:
+                        except manager.OssException as ex:
                             print(ex)
                         except Exception as ex:
                             print(ex)
@@ -296,7 +330,7 @@ class LinkAdmin(admin.ModelAdmin):
                     for t in thumb[:5]:
                         try:
                             oss_thumb.append(om.upload(thumb_bucket, t, game_obj.gameId))
-                        except util.OssException as ex:
+                        except manager.OssException as ex:
                             print(ex)
                         except Exception as ex:
                             print(ex)
@@ -318,6 +352,10 @@ class LinkAdmin(admin.ModelAdmin):
 
     # json格式游戏列表数据
     def game_list(request):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return JsonResponse({"status": 0, "msg": "无权访问"})
+
         platform = request.GET["platform"].lower()
         saleArea = request.GET["saleArea"].lower()
         subject_list = Subjects.objects.filter(platform=platform, saleArea=saleArea, onShelf=False) \
@@ -326,6 +364,10 @@ class LinkAdmin(admin.ModelAdmin):
 
     # json格式评测数据
     def review_list(request):
+        # 检查登录
+        if not LinkAdmin.check_perm(request):
+            return JsonResponse({"status": 0, "msg": "无权访问"})
+
         magazine = request.GET["magazine"].lower()
         review_list = MagzineScores.objects.filter(gameId=0, magazine=magazine) \
             .order_by("subject").values("id", "subject", "score", "url")

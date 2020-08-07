@@ -39,3 +39,5 @@ DATABASES = {
         'PORT': '3306'
     }
 }
+
+CONNECT_ALIPAY = "production"

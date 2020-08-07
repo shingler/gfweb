@@ -16,19 +16,14 @@
 
         <div class="row">
             <div class="col-lg-6">
-                <!-- Large button group -->
-                <div class="btn-group">
-                    <span>选择游戏系列</span>
-                    <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                        系列游戏
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>勇者斗恶龙</li>
-                        <li>生化危机</li>
-                        <li>马里奥</li>
-                    </ul>
+                <div class="input-group">
+                    <span class="input-group-addon">选择游戏系列</span>
+                    <select name="serial_id" class="form-control">
+                        <option value="0">请选择游戏系列</option>
+                        {% for s in serial %}
+                        <option value="{{ s.id }}" {% ifequal s.id shelf.serial_id %}selected{% endifequal %}>{{ s.title }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
         </div>
