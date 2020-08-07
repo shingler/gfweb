@@ -1,6 +1,13 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 # 阿里云oss操作
+import base64
+import datetime
+import hmac
+import json
+import time
+from hashlib import sha1 as sha
+
 import oss2
 from .config import *
 from hashlib import md5
@@ -23,7 +30,7 @@ class OssManager:
             return ""
 
     def get_domain(self, bucket_name):
-        print(bucket_name)
+        # print(bucket_name)
         if bucket_name in OSS_BUCKETNAME:
             return OSS_BUCKETNAME[bucket_name]["domain"]
         else:
@@ -88,6 +95,52 @@ class OssManager:
     # 获取原图地址
     def get_origin_url(self, key, bucket_name):
         return "//%s/%s" % (self.get_domain(bucket_name), key)
+
+
+class OssTokenManager(OssManager):
+    expire_time = 30
+
+    def __init__(self):
+        super(OssTokenManager, self).__init__()
+
+    # 时区
+    @staticmethod
+    def get_iso_8601(expire):
+        gmt = datetime.datetime.utcfromtimestamp(expire).isoformat()
+        gmt += 'Z'
+        return gmt
+
+    # 获取直传token
+    def get_token(self, bucket_name, prefix=""):
+        now = int(time.time())
+        expire_syncpoint = now + self.expire_time
+        # expire_syncpoint = 1612345678
+        expire = OssTokenManager.get_iso_8601(expire_syncpoint)
+
+        policy_dict = {}
+        policy_dict['expiration'] = expire
+        condition_array = []
+        array_item = []
+        array_item.append('starts-with')
+        array_item.append('$key')
+        array_item.append(prefix)
+        condition_array.append(array_item)
+        policy_dict['conditions'] = condition_array
+        policy = json.dumps(policy_dict).strip()
+        policy_encode = base64.b64encode(policy.encode())
+        h = hmac.new(OSS_ACCESS_KEY_SECRET.encode(), policy_encode, sha)
+        sign_result = base64.encodebytes(h.digest()).strip()
+
+        token_dict = {}
+        token_dict['accessid'] = OSS_ACCESS_KEY_ID
+        token_dict['host'] = "http://%s" % self.get_domain(bucket_name)
+        token_dict['policy'] = policy_encode.decode()
+        token_dict['signature'] = sign_result.decode()
+        token_dict['expire'] = expire_syncpoint
+        token_dict['dir'] = prefix
+        # token_dict['callback'] = base64_callback_body.decode()
+        result = json.dumps(token_dict)
+        return result
 
 
 class OssException(Exception):

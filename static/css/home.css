@@ -19,6 +19,30 @@ a:hover,a:visited {
     text-decoration: none;
 }
 
+/* 顶部logo及登录状态 start */
+.logo-panel h3 {
+    display: inline;
+}
+.logo {
+    width: 60px;
+    margin-bottom: 18px;
+}
+/* 登录面板 */
+.login-panel {
+    display: inline-block;
+    margin-right: 10px;
+    float: right;
+    margin-top: 28px;
+}
+/* 会员面板 */
+.member-panel {
+    display: inline-block;
+    margin-right: 10px;
+    float: right;
+    margin-top: 28px;
+}
+/* 顶部logo及登录状态 end */
+
 /* 平台图标 start */
 .console-icons {
     width: 40px;
@@ -76,3 +100,11 @@ a:hover,a:visited {
   align-items: center;
 }
 /* swiper end */
+
+/* 收藏按钮 start */
+.favorite-btn {
+    float: right;
+    margin-right: 10px;
+    cursor: pointer;
+}
+/* 收藏按钮 end */

@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
+import json
+
 from django import template
 from django.middleware import csrf
-from link import util
+from ossManager import manager
 register = template.Library()
 
 # 获取循环范围
@@ -23,14 +25,17 @@ def get_item(d, key):
 # 自动加oss域名并兼容外站链接
 @register.filter(name="show_pic")
 def show_pic(url, param=''):
+    # print(url, type(url))
+    if url is None:
+        return "/static/image/loading.gif"
     if url.startswith('http') or len(param) == 0:
         # 外站图片直接展示
         return url
     else:
         # 阿里云oss图片，可以进一步处理
         params = param.split(',')
-        print(params)
-        om = util.OssManager()
+        # print(params)
+        om = manager.OssManager()
         if len(params) > 1:
             return om.get_url(url, params[0], params[1])
         else:
@@ -45,3 +50,29 @@ def get_csrf(request):
 @register.filter(name="if_save_to_oss")
 def if_save_to_oss(url):
     return not url.startswith("http")
+
+# 判断登录状态
+@register.filter(name="is_login")
+def is_login(request):
+    # print(request.user.userprofile.avatar)
+    return request.user.is_authenticated
+
+# 将可序列化的字符转存json
+@register.filter(name="to_json")
+def to_json(json_str):
+    # 单双引号兼容
+    json_str = json_str.replace('\'', '\"')
+    try:
+        res = json.loads(json_str, encoding="utf-8")
+    except Exception as err:
+        print(err)
+        res = json_str
+    # print(res)
+    return res
+
+# 权限判断
+@register.filter(name="check_perm")
+def check_perm(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return True
+    return False

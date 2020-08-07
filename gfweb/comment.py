@@ -4,22 +4,50 @@
 import json
 import math
 
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseRedirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
-from GameModel.models import MagzineScores, Shelf
+from GameModel.models import MagzineScores, Shelf, Magazines
 from .util import *
 
 active = "comment"
 theme = "weui"
 
+
+# 首页
+def home(request):
+    # 每个杂志一块，每块显示评分Top4的游戏
+    magazines = Magazines.objects.filter(enable=True)
+    data = {}
+    review_ids = []
+    for m in magazines:
+        top4 = MagzineScores.objects.filter(magazine=m.title, gameId__gt=0).order_by("-score")[:4]
+        data[m.title] = top4
+        review_ids += map(lambda x: x.gameId, top4)
+
+    # 获取评测的游戏标题、封图等
+    games = Shelf.objects.filter(gameId__in=review_ids).only("gameId", "cover", "titleCh")
+
+    # 游戏信息和杂志块发生关联
+    game_cover = {}
+    for game in games:
+        game_cover[game.gameId] = json.loads(game.cover.replace('\'', '\"'), encoding="utf-8")[0]
+    print(logo)
+    # 评测信息和游戏信息不必捏合到一起，通过gameId可以访问game_data里的数据
+    render_data = {
+        "active": active, "magazines": data, "game_cover": game_cover,
+        "logo": logo
+    }
+    return render(request, "weui/review/home.html", render_data)
+    # return HttpResponse("test")
+
+
 # 媒体评分
-def magazine(request):
+def magazine(request, magazine=""):
     # request数据
     get_data = request.GET.copy()
     page = get_data.setdefault("page", 1)
-    # 根据媒体名查找评分
-    magzine_name = get_data.setdefault("m", "")
+
     # 根据游戏名查找评分 @TODO
     game_name = get_data.setdefault("g", "")
     # 根据得分范围查找评分 @TODO
@@ -29,8 +57,8 @@ def magazine(request):
     # 获取数据
     size = 10
     filters = {"gameId__gt": 0}
-    if len(magzine_name):
-        filters["magazine"] = magzine_name
+    if len(magazine):
+        filters["magazine"] = magazine
     if len(game_name):
         #@TODO 根据游戏名查找ID
         pass
@@ -40,7 +68,7 @@ def magazine(request):
 
     mag_obj = MagzineScores()
     # magzines = MagzineScores.objects.filter(**filters)[offset:size]
-    data_list = MagzineScores.objects.filter(**filters)
+    data_list = MagzineScores.objects.filter(**filters).order_by("-score")
     # 分页
     paginator = Paginator(data_list, size)
     try:
@@ -78,6 +106,7 @@ def magazine(request):
         "current_page": current_page_data,
         "magzines": mag_obj.getMagzineNames(),
         "logo": logo,
+        "magazine_title": magazine
     }
 
     return render(request, template, render_data)
@@ -92,6 +121,10 @@ def review(request, pk):
         game = None
         if review.gameId != 0:
             game = Shelf.objects.filter(gameId=review.gameId).first()
+            # 如果数据库里没有关联或gameId查不到，跳转到原url吧。。。
+            if game is None:
+                return HttpResponseRedirect(review.url)
+
             game.cover = json.loads(game.cover.replace("\'", "\""))[0]
 
         render_data = {

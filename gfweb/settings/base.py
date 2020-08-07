@@ -32,8 +32,9 @@ INSTALLED_APPS = [
     'link',
     'restful',
     'oss2',
-    # 'werkzeug_debugger_runserver',
-    # 'django_extensions'
+    'authApp',
+    'ossManager',
+    'favorite',
 ]
 
 MIDDLEWARE = [

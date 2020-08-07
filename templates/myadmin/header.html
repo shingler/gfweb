@@ -1,0 +1,43 @@
+{% load static %}
+{% load myfilter %}
+<div class="page">
+    <div class="page__hd">
+        <div class="page__title">
+            <span class="logo-panel">
+                <a href="/" style="color:black">
+                <img class="logo" src="{% static "image/logo-180-trans.png" %}">
+                    <h3>游方 - 主机游戏信息查询</h3></a>
+            </span>
+            {% if not request|is_login %}
+                <span class="login-panel">
+                <a href="{% url "sigin-alipay-authorize" %}?ref={{ request.build_absolute_uri|force_escape }}">
+                    <img src="{% static "image/alipay.png" %}" width="20px"/>支付宝登录
+                </a>
+            </span>
+            {% else %}
+                <span class="member-panel">
+                <div class="dropdown">
+                  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                          data-toggle="dropdown"
+                          aria-haspopup="true" aria-expanded="true">
+                    <img src="{{ request.user.userprofile.avatar }}"
+                         width="20px"/>{{ request.user.userprofile.nickname }}
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                      <li><a href="{% url "profile-index" %}">修改资料</a></li>
+                      <li><a href="{% url "favorite-list" %}">我的收藏</a></li>
+                      {% ifequal request|check_perm True %}
+                      <li role="separator" class="divider"></li>
+                      <li><a href="{% url "myadmin.game.list" %}">关联管理</a></li>
+                      {% endifequal %}
+                      <li role="separator" class="divider"></li>
+                      <li><a href="{% url "sigin-logout" %}">退出登录</a></li>
+                  </ul>
+                </div>
+            </span>
+            {% endif %}
+        </div>
+
+    </div>
+</div>

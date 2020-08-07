@@ -1,0 +1,35 @@
+{% extends "weui/base.html" %}
+{% load static %}
+{% load myfilter %}
+{% block mainbody %}
+{% include "breadcrumb.html" %}
+<div class="page">
+    <div class="page__hd">
+        <h1 class="page__title">游戏评测</h1>
+        <p class="page__desc"></p>
+    </div>
+    <div class="page__bd">
+        {% for title,reviews in magazines.items %}
+        <div class="weui-panel__hd"><img src="{% static logo|get_item:title %}" style="width: 50px; display: inline;"/>{{ title }}</div>
+        <div class="weui-grids">
+            {% for review in reviews %}
+            <a href="{% url "magazine.review" review.id %}" class="weui-grid" style="width: 50%">
+                <div class="weui-grid__icon" style="position: relative; width: 65%;height: 65%;">
+                    <img src="{{ game_cover|get_item:review.gameId|show_pic:"cover,list_icon_w400" }}"
+                        onerror="{% static "image/loading.gif" %}">
+                </div>
+                <p class="weui-grid__label"><span class="weui-badge" style="margin-right: 5px;">{{ review.score }}</span>
+                    {{ review.subject }}</p>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="weui-panel__ft">
+            <a href="{% url "magazine.list" magazine=title %}" class="weui-cell weui-cell_active weui-cell_access weui-cell_link">
+                <div class="weui-cell__bd">查看更多</div>
+                <span class="weui-cell__ft"></span>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
