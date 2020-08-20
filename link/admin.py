@@ -319,6 +319,9 @@ class LinkAdmin(admin.ModelAdmin):
                         except Exception as ex:
                             print(ex)
                     game_obj.cover = json.dumps(oss_covers)
+                    # 外键不应该给一个为0的默认值。用none来绕过django的外键检查
+                    if game_obj.serial_id == 0:
+                        game_obj.serial_id = None
                     game_obj.save()
 
                 # 转存截图逻辑（暂只转前8张，多了会导致504）
