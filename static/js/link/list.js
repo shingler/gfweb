@@ -35,7 +35,7 @@ $("#modal-confirm").on('click', function(e) {
 });
 
 // 执行图片转存
-$(".save-to-ossManager").on("click", function (e) {
+$(".save-to-oss").on("click", function (e) {
     var url = $(this).attr("data-url");
     var gid = $(this).attr("game_id");
     var csrf = $(this).attr("data-csrf");

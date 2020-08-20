@@ -40,7 +40,8 @@ class Shelf(models.Model):
     # 有无中文
     hasChinese = models.BooleanField(default=False, verbose_name="有无中文")
     # 系列ID
-    serial = models.ForeignKey(to=Serial, default=0, verbose_name="系列ID", on_delete=models.SET_DEFAULT)
+    serial = models.ForeignKey(to=Serial, default=0, verbose_name="系列ID", on_delete=models.DO_NOTHING, null=True)
+    # serial_id = models.IntegerField(default=0, verbose_name="系列ID")
     # 关键词
     keyword = models.CharField(max_length=100, default="", verbose_name="关键词")
     # 游玩人数
